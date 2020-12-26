@@ -7,7 +7,6 @@ class Gobject{
     img_height;
     info;
     
-
     constructor(gamecore, img_width, img_height, src){
         this.src = src;
         this.img_width = img_width;
@@ -55,28 +54,72 @@ window.onload = function(){
     game.fps = 60;
 
     var player = new Gobject(game, 32, 42, "resources/f_idle.png");
+    game.preload("resources/panel.png");
 
+    let stagetile_width_split  = 20;
+    let stagetile_height_split = 20;
+    let stagetile_width = game.width/(stagetile_width_split-2);
+    let stagetile_height = game.height/(stagetile_height_split-2);
+
+    var stagetile = new Array(stagetile_height_split);
+
+    // SX, SY, EX, EY
     var hooks = [
-        [0,300,300,400],
         //[0,400,300,400]
     ];
 
     // X, SY, EY, COLLISION
     var walls = [
-        [300,0,500, 1],
+        //[300,0,500, 1],
     ];
 
     game.onload = function(){
 
         player.load(game);
-        player.info.px = 100;
-        player.info.py = 200;
+
+        player.info.x = 100;
+        player.info.y = 200;
+        player.info.px = player.info.x;
+        player.info.py = player.info.y;
+
         player.info.acceleration = 1;
         player.info.max_x_velocity = 5;
 
         player.info.gravity = 0.5;
-        player.info.max_y_velocity = 10;
+        player.info.max_y_velocity = 0;
         player.info.jump_y_velocity = 10;
+
+
+        function set_tile_frame(iw, ih, tile_bpx, tile_bpy){
+
+            var tile_px = Math.floor(tile_bpx);
+            var tile_py = Math.floor(tile_bpy);
+
+            if(ih+tile_py < 0 || ih+tile_py >= stagedata.length || iw+tile_px < 0 || iw+tile_px >= stagedata[0].length ) return;
+
+            var data = Math.floor(stagedata[ih+tile_py][iw+tile_px]);
+            var framenum_x = stagetile[ih][iw].image.width / stagetile[ih][iw].width;
+
+            stagetile[ih][iw].frame = (Math.floor(data/10)%10) * framenum_x + data%10;
+            stagetile[ih][iw].x = iw*stagetile_width - (tile_bpx-tile_px) * stagetile_width;
+            stagetile[ih][iw].y = ih*stagetile_height - (tile_bpy-tile_py) * stagetile_height;
+        }
+
+        for(ih = 0; ih<stagetile_height_split; ih++){
+            stagetile[ih] = new Array(stagetile_width_split);
+            for(iw = 0; iw<stagetile_width_split; iw++){
+                stagetile[ih][iw] = new Sprite(16, 16);
+                stagetile[ih][iw].image = game.assets["resources/panel.png"];
+                stagetile[ih][iw].x = iw*stagetile_width;
+                stagetile[ih][iw].y = ih*stagetile_height;
+                stagetile[ih][iw].scaleX = stagetile_width/16;
+                stagetile[ih][iw].scaleY = stagetile_height/16;
+
+                //set_tile_frame(iw, ih, 10, 10);
+                game.rootScene.addChild(stagetile[ih][iw]);
+
+            }
+        }
 
         player.set_loop_func(function(){
 
@@ -153,27 +196,15 @@ window.onload = function(){
 
             else this.py  = y_af; 
 
-            this.x = this.px;
-            this.y = this.py;
+            //this.x = this.px;
+            //this.y = this.py;
 
-            
-            //
+            for(ih = 0; ih<stagetile_height_split; ih++){
+                for(iw = 0; iw<stagetile_width_split; iw++){
+                    set_tile_frame(iw, ih, this.px/stagetile_width_split, this.py/stagetile_height_split);
+                }
+            }
         });
-        /*
-        
-        var player = new Sprite(32, 42);
-        player.image = game.assets["resources/f_idle.png"];
-        player.x = 100;
-        player.y = 100;
-        game.rootScene.addChild(player);
-
-        player.addEventListener("enterframe", function(){
-        });
-
-        player.addEventListener("touchstart", function(){
-            game.rootScene.removeChild(player);
-        });
-        */
         
     };
     game.start();

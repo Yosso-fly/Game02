@@ -15,7 +15,7 @@ mapgen_rule rules[RULES_NUM] = {
 };
 
 void rule_192_137_93(RULE_ARG(cont, x, y)){
-    panel_container_insert_9(cont, x, y, 0x00, 0,
+    panel_container_insert_9(cont, x, y, 0x01, 0,
         0x05, 0x06, 0x07,
         PANEL_VOID,PANEL_VOID,PANEL_VOID,
         PANEL_VOID,PANEL_VOID,PANEL_VOID,
@@ -25,12 +25,12 @@ void rule_192_137_93(RULE_ARG(cont, x, y)){
 
 void rule_192_179_93(RULE_ARG(cont, x, y)){
 
-    panel_container_insert_9(cont, x, y, 0x00, 0,
+    panel_container_insert_9(cont, x, y, 0x01, 0,
         0x00, 0x01, 0x02,
         0x10, 0x11, 0x12,
         0x20, 0x21, 0x22,
-        0x13, 0x03,
-        0x04, 0x14
+        0x03, 0x14,
+        0x13, 0x04
         );
     
     //panel_container_insert(cont, x, y, 0x11, 0x00, 0);
@@ -38,6 +38,6 @@ void rule_192_179_93(RULE_ARG(cont, x, y)){
 }
 
 void rule_otherwise(RULE_ARG(cont, x, y)){
-    panel_container_insert(cont, x, y, PANEL_VOID, 0x00, 1);
+    panel_container_insert(cont, x, y, PANEL_VOID, 0x00, 0);
 }
 

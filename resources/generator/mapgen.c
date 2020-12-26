@@ -87,7 +87,7 @@ int mapgen_process(){
         for (int ix=0; ix<image_width; ix++){
             format_panel(code, cont, iy*image_width+ix);
             reverse(code);
-            fprintf(map_file, "%s,", code);
+            fprintf(map_file, "1%s,", code);
         }
         fprintf(map_file, "],\n");
     }

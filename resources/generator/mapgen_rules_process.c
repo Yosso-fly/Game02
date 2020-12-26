@@ -52,6 +52,8 @@ void panel_container_insert(mapgen_panel_container *cont, int x, int y, int imag
     
     if (ad >= image_width * image_height || ad < 0) return;
 
+    if(cont[ad].panel[0].depth > depth) return;
+
     cont[ad].panel[0].image = image;
     cont[ad].panel[0].depth = depth;
     cont[ad].panel[0].collision = collision;
