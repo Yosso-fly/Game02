@@ -36,7 +36,7 @@ class Gobject{
         
         this.info.jump_y_velocity = 0;
 
-        gamecore.rootScene.addChild(this.info);
+        
     }
 
     set_loop_func(loop_func){
@@ -56,7 +56,7 @@ window.onload = function(){
 
     game.fps = 60;
 
-	game.rootScene.backgroundColor = "#CEF";
+	//game.rootScene.backgroundColor = "#CEF";
 
     var mastertime = 0;
     var player_for_right = true;
@@ -85,6 +85,7 @@ window.onload = function(){
     let base_player_y = stagetile_height_sum/2;
 
     var stagetile = new Array(stagetile_height_split);
+    var bgtile = new Array(stagetile_height_split);
 
     // SX, SY, EX, EY, COLLISION
     var hooks = [
@@ -93,7 +94,7 @@ window.onload = function(){
 
     // X, SY, EY, COLLISION
     var walls = [
-        //[300,0,500, 1],
+        [4518, 0, 10000, 1]
     ];
 
     //694,444
@@ -108,15 +109,15 @@ window.onload = function(){
 
         player.info.x = base_player_x;
         player.info.y = base_player_y;
-        player.info.px = 130;
-        player.info.py = 130;
+        player.info.px = 400;
+        player.info.py = 4800;
 
         player.info.acceleration = 1;
         player.info.max_x_velocity = 5;
 
         player.info.gravity = 0.6;
         player.info.max_y_velocity = 8;
-        player.info.jump_y_velocity = 10;
+        player.info.jump_y_velocity = 11;
         player.info.gravity_adjust = 0.6;
 
 
@@ -125,87 +126,157 @@ window.onload = function(){
         for(iw = 0; iw< stagedata[0].length; iw++){
             for(ih = 0; ih< stagedata.length; ih++){
                 var data_seg = stagedata[ih][iw]%100;
-                if(data_seg == 1 || data_seg == 6 || data_seg == 13 || data_seg == 14){
+                if(data_seg ==  1 || data_seg ==  6 || data_seg == 13 || data_seg == 14
+                || data_seg == 16 || data_seg == 31 || data_seg == 33 || data_seg == 34
+                || data_seg == 41 || data_seg == 46 || data_seg == 53 || data_seg == 54
+                || data_seg == 56 || data_seg == 71 || data_seg == 73 || data_seg == 74
+                || data_seg == 81 || data_seg == 86 || data_seg == 93 || data_seg == 94){
                     var hook_x = iw*stagetile_width;
                     var hook_y = ih*stagetile_height;
                     hooks.push([
                         hook_x-hook_edge,
                         hook_y+hook_foot,
-                        hook_x+stagetile_width+stagetile_width*0.5+hook_edge,
+                        hook_x+stagetile_width*1.5+hook_edge,
                         hook_y+hook_foot,
                         1]);
                 }
 
-                if(data_seg == 20 || data_seg == 21 || data_seg == 22){
+                if(data_seg == 20 || data_seg == 21 || data_seg == 22 || data_seg ==  3 || data_seg ==  4
+                || data_seg == 35 || data_seg == 36 || data_seg == 37 || data_seg == 33 || data_seg == 34
+                || data_seg == 60 || data_seg == 61 || data_seg == 62 || data_seg == 53 || data_seg == 54
+                || data_seg == 75 || data_seg == 76 || data_seg == 77 || data_seg == 73 || data_seg == 74
+                /*|| data_seg == 95 || data_seg == 96 || data_seg == 97*/){
                     var hook_x = iw*stagetile_width;
                     var hook_y = ih*stagetile_height;
                     hooks.push([
-                        hook_x-hook_edge*0.5,
-                        hook_y+stagetile_height+hook_foot,
-                        hook_x+stagetile_width+hook_edge*0.5,
-                        hook_y+stagetile_height+hook_foot,
+                        hook_x+stagetile_width-hook_edge,
+                        hook_y+stagetile_height*1.5,
+                        hook_x+stagetile_width*0.5+hook_edge,
+                        hook_y+stagetile_height*1.5,
                         -1]);
                 }
 
                 var wall_x = iw*stagetile_width;
                 var wall_y = ih*stagetile_height;
 
-                if(data_seg == 10 || data_seg == 14){
+                if(data_seg == 10 || data_seg == 14
+                || data_seg == 25 || data_seg == 34
+                || data_seg == 50 || data_seg == 54
+                || data_seg == 65 || data_seg == 74
+                || data_seg == 4  || data_seg == 24
+                || data_seg == 44 || data_seg == 64
+                || data_seg == 84
+                /*|| data_seg == 90 || data_seg == 95*/){
 
                     walls.push([
                         wall_x + stagetile_width*1.5,
                         wall_y - wall_edge,
-                        wall_y + stagetile_height + wall_edge*1.5,
+                        wall_y + stagetile_height*2.5,// - wall_edge * (data_seg%10 == 4 && Math.floor(data_seg/10)%100 %2 == 0),
                         1]);
                 }
 
-                if(data_seg == 12 || data_seg == 13){
+                if(data_seg == 12 || data_seg == 13
+                || data_seg == 27 || data_seg == 33
+                || data_seg == 52 || data_seg == 53
+                || data_seg == 67 || data_seg == 73
+                || data_seg == 3  || data_seg == 23
+                || data_seg == 43 || data_seg == 63
+                || data_seg == 83
+                /*|| data_seg == 92 || data_seg == 93*/){
 
                     walls.push([
                         wall_x + stagetile_width*0.5,
                         wall_y - wall_edge,
-                        wall_y + stagetile_height + wall_edge,
+                        wall_y + stagetile_height*2.5,// - wall_edge * (data_seg%10 == 3 && Math.floor(data_seg/10)%100 %2 == 0),
                         -1]);
                 }
+
+
 
             }
         }
         //console.log(stagetile_width);
 
 
+
+
         function set_tile_frame(iw, ih, tile_bpx, tile_bpy){
+
 
             var tile_px = Math.floor(tile_bpx);
             var tile_py = Math.floor(tile_bpy);
 
             if(ih+tile_py < 0 || ih+tile_py >= stagedata.length || iw+tile_px < 0 || iw+tile_px >= stagedata[0].length ) return;
 
+
+
             var data = Math.floor(stagedata[ih+tile_py][iw+tile_px]);
             var framenum_x = stagetile[ih][iw].image.width / stagetile[ih][iw].width;
 
+            bgtile[ih][iw].x = iw*stagetile_width  - (tile_bpx-tile_px) * stagetile_width ;
+            bgtile[ih][iw].y = ih*stagetile_height - (tile_bpy-tile_py) * stagetile_height;
+
+
+                 if(ih+tile_py > 180) bgtile[ih][iw].frame = framenum_x * 2 + 8;
+            else if(ih+tile_py > 177) bgtile[ih][iw].frame = framenum_x * 1 + 8;
+            else if(ih+tile_py > 100) bgtile[ih][iw].frame = framenum_x * 0 + 8;
+            else if(ih+tile_py > 75) bgtile[ih][iw].frame = framenum_x * 0 + 9;
+            else if(ih+tile_py > 50) bgtile[ih][iw].frame = framenum_x * 1 + 9;
+            else bgtile[ih][iw].frame = framenum_x * 2 + 9;
+
+
+            if(data%100 == 99){
+                stagetile[ih][iw].visible = false;
+                return;
+            }
+            else stagetile[ih][iw].visible = true;
+
+            
+
             stagetile[ih][iw].frame = (Math.floor(data/10)%10) * framenum_x + data%10;
-            stagetile[ih][iw].x = iw*stagetile_width  - (tile_bpx-tile_px) * stagetile_width ;
-            stagetile[ih][iw].y = ih*stagetile_height - (tile_bpy-tile_py) * stagetile_height;
+            stagetile[ih][iw].x = bgtile[ih][iw].x;
+            stagetile[ih][iw].y = bgtile[ih][iw].y;
         }
+
+
+
+
 
         for(ih = 0; ih<stagetile_height_split; ih++){
             stagetile[ih] = new Array(stagetile_width_split);
+            bgtile[ih] = new Array(stagetile_width_split);
             for(iw = 0; iw<stagetile_width_split; iw++){
+                
                 stagetile[ih][iw] = new Sprite(16, 16);
                 stagetile[ih][iw].image = game.assets["resources/panel.png"];
                 stagetile[ih][iw].x = iw*stagetile_width;
                 stagetile[ih][iw].y = ih*stagetile_height;
+
+
                 stagetile[ih][iw].scaleX = stagetile_width/16;
                 stagetile[ih][iw].scaleY = stagetile_height/16;
 
+                // bg
+
+                bgtile[ih][iw] = new Sprite(16, 16);
+                bgtile[ih][iw].image = game.assets["resources/panel.png"];
+                bgtile[ih][iw].x = iw*stagetile_width;
+                bgtile[ih][iw].y = ih*stagetile_height;
+
+
+                bgtile[ih][iw].scaleX = stagetile_width/16;
+                bgtile[ih][iw].scaleY = stagetile_height/16;
+
+                
+                game.rootScene.addChild(bgtile[ih][iw]);
                 game.rootScene.addChild(stagetile[ih][iw]);
 
             }
         }
 
-        player.set_loop_func(function(){
+        game.rootScene.addChild(player.info);
 
-            //console.log(this.px, this.py);
+        player.set_loop_func(function(){
 
             // X phisics
 
@@ -282,9 +353,9 @@ window.onload = function(){
                 if(!(this.is_hooked == false && this.px >= hooks[i][0] && this.px <= hooks[i][2]))continue;
 
                 if(hooks[i][4] == -1){
-                    if(y_bef >= hook_height(i) && y_af+this.y_velocity < hook_height(i) && this.y_velocity <= 0){
+                    if(y_bef >= hook_height(i)-stagetile_height*0.2 && y_af+this.y_velocity < hook_height(i)){
                         this.y_velocity  = 0;
-                        
+                        y_af = hook_height(i)+stagetile_height*0.2;
                     }
                 }
                 else if(y_bef <= hook_height(i)+stagetile_height*0.2 && y_af+this.y_velocity > hook_height(i)){

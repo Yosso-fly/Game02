@@ -3,7 +3,7 @@
 #define PANEL_DATA_SIZE 14
 #define PANEL_SEGMENTS_IN_DATA 1
 
-#define PANEL_VOID 0x30
+#define PANEL_VOID 0x99
 
 #include "png_process.c"
 #include "mapgen_rules_process.c"
