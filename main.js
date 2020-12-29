@@ -54,7 +54,7 @@ window.onload = function(){
 
     var game = new Core(500, 500);
 
-    game.fps = 60;
+    game.fps = 28;
 
     //game.rootScene.backgroundColor = "#CEF";
     
@@ -68,10 +68,11 @@ window.onload = function(){
     cr.beginPath();
     cr.fillRect(0,0,game.width, game.height*2);
 
-    var background = new Sprite(game.width, game.height*2);
-    background.image = bgsurface;
-    game.rootScene.addChild(background);
-    
+    var titlesurface = new Surface(game.width, game.height);
+    var cr = titlesurface.context;
+    cr.fillStyle = "rgb(50,50,50)";
+    cr.fillRect(0,0,game.width, game.height);
+
     var time_limit = 180;
     var mastertime = 0;
     var masterscore = 0;
@@ -86,12 +87,18 @@ window.onload = function(){
     game.preload("resources/mountain.png");
     game.preload("resources/shrine.png");
     game.preload("resources/char.png");
+    game.preload("resources/resultimg.png");
+    game.preload("resources/titleimg.png");
+    game.preload("resources/ui.png");
+    game.preload("resources/stagels.png");
+    game.preload("resources/details.png");
+    game.preload("resources/fortune.png");
+    game.preload("resources/fortune_details.png");
 
     let stagetile_width_split  = 20;
     let stagetile_height_split = 20;
-    let stagetile_rest = game.width/10;
-    let stagetile_width_sum = game.width+stagetile_rest;
-    let stagetile_height_sum = game.width+stagetile_rest;
+    let stagetile_width_sum = game.width+game.width/10;
+    let stagetile_height_sum = game.height+game.height/10;
     let stagetile_width = stagetile_width_sum/stagetile_width_split;
     let stagetile_height = stagetile_height_sum/stagetile_height_split;
 
@@ -105,8 +112,26 @@ window.onload = function(){
 
     var stagetile = new Array(stagetile_height_split);
     var bgtile = new Array(stagetile_height_split);
+    var mountain = new Sprite(1000, 300);
+    var shrine= new Sprite(128,128);
+    var label = new Array(10);
+    var background = new Sprite(game.width, game.height*2);
+    var titleground = new Sprite(game.width, game.height);
+    var ui = new Sprite(64, 32);
+    var map = new Sprite(125,173);
+    var startdetail = new Sprite(192,32);
+    var icon_fly = new Sprite(16,16);
+    var icon_shrine = new Sprite(16,16);
 
+    var titleimg = new Sprite(256, 256);
+    var started = false;
 
+    var charsize = stagetile_width*0.5;
+    let label_value = 4;
+    var exptime = 0;
+
+    //var gamefunc = function(){};
+    //var titlefunc = function(){};
 
     // SX, SY, EX, EY, COLLISION
     var hooks = [
@@ -118,104 +143,191 @@ window.onload = function(){
         [4518, 0, 10000, 1]
     ];
 
-    //694,444
-
-    //27:14
-
-    //444:200
+    
+    var scene = 0;
 
     game.onload = function(){
 
-        player.load(game, stagetile_width/player.img_width*1.2);
+        var gamephase = function (){
 
-        player.info.x = base_player_x;
-        player.info.y = base_player_y;
-        player.info.px = 400;
-        player.info.py = 4800;
+            
+            background.image = bgsurface;
+            
 
-        player.info.acceleration = 1;
-        player.info.max_x_velocity = 5;
+            //let phisics_speed = 60/game.fps;
 
-        player.info.gravity = 0.6;
-        player.info.max_y_velocity = 8;
-        player.info.jump_y_velocity = 11;
-        player.info.gravity_adjust = 0.6;
+            player.info.x = base_player_x;
+            player.info.y = base_player_y;
+            player.info.px = 400;
+            player.info.py = 4800;
 
-        mastertime = time_limit*game.fps;
-
-        // ギミックの追加
-
-        for(iw = 0; iw< stagedata[0].length; iw++){
-            for(ih = 0; ih< stagedata.length; ih++){
-                var data_seg = stagedata[ih][iw]%100;
-                if(data_seg ==  1 || data_seg ==  6 || data_seg == 13 || data_seg == 14
-                || data_seg == 16 || data_seg == 31 || data_seg == 33 || data_seg == 34
-                || data_seg == 41 || data_seg == 46 || data_seg == 53 || data_seg == 54
-                || data_seg == 56 || data_seg == 71 || data_seg == 73 || data_seg == 74
-                || data_seg == 81 || data_seg == 86 || data_seg == 93 || data_seg == 94){
-                    var hook_x = iw*stagetile_width;
-                    var hook_y = ih*stagetile_height;
-                    hooks.push([
-                        hook_x-hook_edge,
-                        hook_y+hook_foot,
-                        hook_x+stagetile_width*1.5+hook_edge,
-                        hook_y+hook_foot,
-                        1]);
-                }
-
-                if(data_seg == 20 || data_seg == 21 || data_seg == 22 || data_seg ==  3 || data_seg ==  4
-                || data_seg == 35 || data_seg == 36 || data_seg == 37 || data_seg == 33 || data_seg == 34
-                || data_seg == 60 || data_seg == 61 || data_seg == 62 || data_seg == 53 || data_seg == 54
-                || data_seg == 75 || data_seg == 76 || data_seg == 77 || data_seg == 73 || data_seg == 74
-                /*|| data_seg == 95 || data_seg == 96 || data_seg == 97*/){
-                    var hook_x = iw*stagetile_width;
-                    var hook_y = ih*stagetile_height;
-                    hooks.push([
-                        hook_x+stagetile_width-hook_edge,
-                        hook_y+stagetile_height*1.5,
-                        hook_x+stagetile_width*0.5+hook_edge,
-                        hook_y+stagetile_height*1.5,
-                        -1]);
-                }
-
-                var wall_x = iw*stagetile_width;
-                var wall_y = ih*stagetile_height;
-
-                if(data_seg == 10 || data_seg == 14
-                || data_seg == 25 || data_seg == 34
-                || data_seg == 50 || data_seg == 54
-                || data_seg == 65 || data_seg == 74
-                || data_seg == 4  || data_seg == 24
-                || data_seg == 44 || data_seg == 64
-                //|| data_seg == 84
-                /*|| data_seg == 90 || data_seg == 95*/){
-
-                    walls.push([
-                        wall_x + stagetile_width*1.5,
-                        wall_y - wall_edge,
-                        wall_y + stagetile_height*2.5,// - wall_edge * (data_seg%10 == 4 && Math.floor(data_seg/10)%100 %2 == 0),
-                        1]);
-                }
-
-                if(data_seg == 12 || data_seg == 13
-                || data_seg == 27 || data_seg == 33
-                || data_seg == 52 || data_seg == 53
-                || data_seg == 67 || data_seg == 73
-                || data_seg == 3  || data_seg == 23
-                || data_seg == 43 || data_seg == 63
-                //|| data_seg == 83
-                /*|| data_seg == 92 || data_seg == 93*/){
-
-                    walls.push([
-                        wall_x + stagetile_width*0.5,
-                        wall_y - wall_edge,
-                        wall_y + stagetile_height*2.5,// - wall_edge * (data_seg%10 == 3 && Math.floor(data_seg/10)%100 %2 == 0),
-                        -1]);
-                }
-
-
-
+            if(game.fps == 28){
+                player.info.acceleration = 2;
+                player.info.max_x_velocity = 12;
+                player.info.x_friction = 0.6;
+    
+                player.info.gravity = 2.6;
+                player.info.max_y_velocity = 14;
+                player.info.jump_y_velocity = 24;
+                player.info.gravity_adjust = 0.6;
             }
+            else if(game.fps == 60){
+                player.info.acceleration = 1;
+                player.info.max_x_velocity = 5;
+                player.info.x_friction = 0.8;
+        
+                player.info.gravity = 0.6;
+                player.info.max_y_velocity = 8;
+                player.info.jump_y_velocity = 11;
+                player.info.gravity_adjust = 0.6;
+            }
+
+            
+
+
+
+            mastertime = time_limit*game.fps;
+
+            // ギミックの追加
+
+            for(iw = 0; iw< stagedata[0].length; iw++){
+                for(ih = 0; ih< stagedata.length; ih++){
+                    var data_seg = stagedata[ih][iw]%100;
+                    if(data_seg ==  1 || data_seg ==  6 || data_seg == 13 || data_seg == 14
+                    || data_seg == 16 || data_seg == 31 || data_seg == 33 || data_seg == 34
+                    || data_seg == 41 || data_seg == 46 || data_seg == 53 || data_seg == 54
+                    || data_seg == 56 || data_seg == 71 || data_seg == 73 || data_seg == 74
+                    || data_seg == 81 || data_seg == 86 || data_seg == 93 || data_seg == 94){
+                        var hook_x = iw*stagetile_width;
+                        var hook_y = ih*stagetile_height;
+                        hooks.push([
+                            hook_x-hook_edge,
+                            hook_y+hook_foot,
+                            hook_x+stagetile_width*1.5+hook_edge,
+                            hook_y+hook_foot,
+                            1]);
+                    }
+
+                    if(data_seg == 20 || data_seg == 21 || data_seg == 22 || data_seg ==  3 || data_seg ==  4
+                    || data_seg == 35 || data_seg == 36 || data_seg == 37 || data_seg == 33 || data_seg == 34
+                    || data_seg == 60 || data_seg == 61 || data_seg == 62 || data_seg == 53 || data_seg == 54
+                    || data_seg == 75 || data_seg == 76 || data_seg == 77 || data_seg == 73 || data_seg == 74
+                    /*|| data_seg == 95 || data_seg == 96 || data_seg == 97*/){
+                        var hook_x = iw*stagetile_width;
+                        var hook_y = ih*stagetile_height;
+                        hooks.push([
+                            hook_x+stagetile_width-hook_edge,
+                            hook_y+stagetile_height*1.5,
+                            hook_x+stagetile_width*0.5+hook_edge,
+                            hook_y+stagetile_height*1.5,
+                            -1]);
+                    }
+
+                    var wall_x = iw*stagetile_width;
+                    var wall_y = ih*stagetile_height;
+
+                    if(data_seg == 10 || data_seg == 14
+                    || data_seg == 25 || data_seg == 34
+                    || data_seg == 50 || data_seg == 54
+                    || data_seg == 65 || data_seg == 74
+                    || data_seg == 4  || data_seg == 24
+                    || data_seg == 44 || data_seg == 64
+                    //|| data_seg == 84
+                    /*|| data_seg == 90 || data_seg == 95*/){
+
+                        walls.push([
+                            wall_x + stagetile_width*1.5,
+                            wall_y - wall_edge,
+                            wall_y + stagetile_height*2.5,// - wall_edge * (data_seg%10 == 4 && Math.floor(data_seg/10)%100 %2 == 0),
+                            1]);
+                    }
+
+                    if(data_seg == 12 || data_seg == 13
+                    || data_seg == 27 || data_seg == 33
+                    || data_seg == 52 || data_seg == 53
+                    || data_seg == 67 || data_seg == 73
+                    || data_seg == 3  || data_seg == 23
+                    || data_seg == 43 || data_seg == 63
+                    //|| data_seg == 83
+                    /*|| data_seg == 92 || data_seg == 93*/){
+
+                        walls.push([
+                            wall_x + stagetile_width*0.5,
+                            wall_y - wall_edge,
+                            wall_y + stagetile_height*2.5,// - wall_edge * (data_seg%10 == 3 && Math.floor(data_seg/10)%100 %2 == 0),
+                            -1]);
+                    }
+
+
+
+                }
+            }
+
+            
+            mountain.image = game.assets["resources/mountain.png"];
+
+            shrine.image = game.assets["resources/shrine.png"];
+
+            
+
+            for(i = 0; i< label.length; i++){
+                label[i] = new Sprite(11, 16);
+                label[i].x = 10+(i>=label_value)*20+i*charsize;
+                label[i].y = 10;
+                label[i].scaleX = charsize/label[i].width;
+                label[i].scaleY = charsize/label[i].width;
+                label[i].image = game.assets["resources/char.png"];
+            }
+
+            label[1].frame = 11;
+            label[9].frame = 10;
+
+
+
+            for(ih = 0; ih<stagetile_height_split; ih++){
+                stagetile[ih] = new Array(stagetile_width_split);
+                bgtile[ih] = new Array(stagetile_width_split);
+                for(iw = 0; iw<stagetile_width_split; iw++){
+                    
+                    stagetile[ih][iw] = new Sprite(16, 16);
+                    stagetile[ih][iw].image = game.assets["resources/panel.png"];
+                    stagetile[ih][iw].x = iw*stagetile_width;
+                    stagetile[ih][iw].y = ih*stagetile_height;
+
+
+                    stagetile[ih][iw].scaleX = stagetile_width/16;
+                    stagetile[ih][iw].scaleY = stagetile_height/16;
+
+                    // bg
+
+                    bgtile[ih][iw] = new Sprite(16, 16);
+                    bgtile[ih][iw].image = game.assets["resources/panel.png"];
+                    bgtile[ih][iw].x = iw*stagetile_width;
+                    bgtile[ih][iw].y = ih*stagetile_height;
+
+
+                    bgtile[ih][iw].scaleX = stagetile_width/16;
+                    bgtile[ih][iw].scaleY = stagetile_height/16;
+
+                    
+                    game.rootScene.addChild(bgtile[ih][iw]);
+                    game.rootScene.addChild(stagetile[ih][iw]);
+                    
+                    
+
+                }
+            }
+
+
+            shrine.scaleX =player.info.scaleX;
+            shrine.scaleY =player.info.scaleY;
+            shrine.x =game.width;
+            shrine.y =player.info.y - (shrine.height-player.info.height)*shrine.scaleY;
+            
+
+            game.rootScene.addChild(player.info);
+
+            
         }
 
         function set_tile_frame(iw, ih, tile_bpx, tile_bpy){
@@ -235,7 +347,7 @@ window.onload = function(){
             bgtile[ih][iw].y = ih*stagetile_height - (tile_bpy-tile_py) * stagetile_height;
 
 
-                 if(ih+tile_py > 180) bgtile[ih][iw].frame = framenum_x * 2 + 8;
+                if(ih+tile_py > 180) bgtile[ih][iw].frame = framenum_x * 2 + 8;
             else if(ih+tile_py > 177) bgtile[ih][iw].frame = framenum_x * 1 + 8;
 
             if(ih+tile_py <= 177){
@@ -280,87 +392,158 @@ window.onload = function(){
 
             stagetile[ih][iw].x = bgtile[ih][iw].x;
             stagetile[ih][iw].y = bgtile[ih][iw].y;
+        };
+
+        var titlephase = function(){
+            titleground.image = titlesurface;
+            game.rootScene.addChild(titleground);
+            titleimg.image = game.assets["resources/titleimg.png"];
+            titleimg.scaleX = game.width/titleimg.width*0.75;
+            titleimg.scaleY = titleimg.scaleX;
+            titleimg.x = game.width*0.26;
+            titleimg.y = -game.height*0.2;
+            game.rootScene.addChild(titleimg);
+            ui.image = game.assets["resources/ui.png"];
+            ui.scaleX = stagetile_width*5/ui.width;
+            ui.scaleY = ui.scaleX;
+            ui.x = (stagetile_width_split-5)/2*stagetile_width;
+            ui.y = game.height*0.8;
+            ui.frame = 4;
+            game.rootScene.addChild(ui);
+            
         }
 
+        var titlefunc = function() {
+            titleimg.y += (game.height*(0.1+started*1.01) - titleimg.y)*0.2*(60/game.fps);
 
-
-        var mountain = new Sprite(1000, 300);
-        mountain.image = game.assets["resources/mountain.png"];
-
-        var shrine= new Sprite(128,128);
-        shrine.image = game.assets["resources/shrine.png"];
-
-        var label = new Array(10);
-        var charsize = stagetile_width*0.5;
-        let label_value = 4;
-        for(i = 0; i< label.length; i++){
-            label[i] = new Sprite(11, 16);
-            label[i].x = 10+(i>=label_value)*20+i*charsize;
-            label[i].y = 10;
-            label[i].scaleX = charsize/label[i].width;
-            label[i].scaleY = charsize/label[i].width;
-            label[i].image = game.assets["resources/char.png"];
+            if(titleimg.y > game.height){
+                scene = 1;
+                game.rootScene.removeChild(titleimg);
+                game.rootScene.removeChild(ui);
+                expphase();
+            }
+            
         }
 
-        label[1].frame = 11;
-        label[9].frame = 10;
+        var expphase = function(){
+            map.image = game.assets["resources/stagels.png"];
+            map.scaleX = stagetile_width*10/map.width;
+            map.scaleY = map.scaleX;
+            map.x = game.width * 0.36;
+            map.y = -game.height * 0.3;
+            game.rootScene.addChild(map);
 
+            startdetail.image = game.assets["resources/details.png"];
+            startdetail.scaleX = stagetile_width*12/startdetail.width;
+            startdetail.scaleY = startdetail.scaleX;
+            startdetail.x = game.width * 0.3;
+            startdetail.y = game.height * 0.82;
+            game.rootScene.addChild(startdetail);
 
+            var framenum_x = stagetile[0][0].image.width / stagetile[0][0].width;
 
-        game.rootScene.addChild(mountain);
+            icon_fly.image = game.assets["resources/panel.png"];
+            icon_fly.scaleX = stagetile_width*1.2/icon_fly.width;
+            icon_fly.scaleY = icon_fly.scaleX;
+            icon_fly.frame = framenum_x *6 + 9;
+            icon_fly.x = game.width * 0.22;
+            icon_fly.y = game.height* 0.65;
+            game.rootScene.addChild(icon_fly);
+            
+            icon_shrine.image = game.assets["resources/panel.png"];
+            icon_shrine.scaleX = stagetile_width*1.2/icon_shrine.width;
+            icon_shrine.scaleY = icon_shrine.scaleX;
+            icon_shrine.frame = framenum_x *6 + 8;
+            icon_shrine.x = game.width * 0.72;
+            icon_shrine.y = game.height* 0.10;
+            game.rootScene.addChild(icon_shrine);
+            
+        }
 
-        for(ih = 0; ih<stagetile_height_split; ih++){
-            stagetile[ih] = new Array(stagetile_width_split);
-            bgtile[ih] = new Array(stagetile_width_split);
-            for(iw = 0; iw<stagetile_width_split; iw++){
+        var expfunc = function() {
+            
+            exptime++;
+            if(Math.floor(exptime/game.fps*4)%2 == 1 && exptime < 100){
+                icon_fly.visible = false;
+                icon_shrine.visible = false;
+            }
+            else{
+                icon_fly.visible = true;
+                icon_shrine.visible = true;
+            }
+
+            if(exptime > 100){
+                if(exptime == 101){
+                    game.rootScene.removeChild(icon_fly);
+                    game.rootScene.removeChild(icon_shrine);
+                    game.rootScene.removeChild(startdetail);
+
+                    game.rootScene.addChild(ui);
+                    ui.frame = 6;
+                    ui.y = game.height*0.5;
+                }
+
+                map.y += (game.height*1.3 - map.y)*0.2*(60/game.fps);
+            }
+            else{
+                map.y += (game.height*0.2 - map.y)*0.2*(60/game.fps);
+            }
+
+            if(exptime == 140){
+                scene = 2;
+                game.rootScene.insertBefore(background, player.info);
                 
-                stagetile[ih][iw] = new Sprite(16, 16);
-                stagetile[ih][iw].image = game.assets["resources/panel.png"];
-                stagetile[ih][iw].x = iw*stagetile_width;
-                stagetile[ih][iw].y = ih*stagetile_height;
+                game.rootScene.insertBefore(mountain, player.info);
+                for(ih = 0; ih<stagetile_height_split; ih++){
+                    for(iw = 0; iw<stagetile_width_split; iw++){
+                        game.rootScene.insertBefore(bgtile[ih][iw], player.info);
+                        game.rootScene.insertBefore(stagetile[ih][iw], player.info);
+                    }
+                }
 
+                game.rootScene.insertBefore(shrine, player.info);
 
-                stagetile[ih][iw].scaleX = stagetile_width/16;
-                stagetile[ih][iw].scaleY = stagetile_height/16;
-
-                // bg
-
-                bgtile[ih][iw] = new Sprite(16, 16);
-                bgtile[ih][iw].image = game.assets["resources/panel.png"];
-                bgtile[ih][iw].x = iw*stagetile_width;
-                bgtile[ih][iw].y = ih*stagetile_height;
-
-
-                bgtile[ih][iw].scaleX = stagetile_width/16;
-                bgtile[ih][iw].scaleY = stagetile_height/16;
-
+                for(i = 0; i< label.length; i++){
+                    game.rootScene.insertBefore(label[i], player.info);
+                }
                 
-                game.rootScene.addChild(bgtile[ih][iw]);
-                game.rootScene.addChild(stagetile[ih][iw]);
-                
-                
-
             }
         }
 
-        game.rootScene.addChild(player.info);
-        shrine.scaleX =player.info.scaleX;
-        shrine.scaleY =player.info.scaleY;
-        shrine.x =game.width;
-        shrine.y =player.info.y - (shrine.height-player.info.height)*shrine.scaleY;
-        game.rootScene.addChild(shrine);
-
-        for(i = 0; i< label.length; i++){
-            
-            game.rootScene.addChild(label[i]);
+        var uifunc = function() {
+            if(scene == 0){
+                started = true;
+            }
         }
 
         var gamefunc = function(){
-            
-            // X phisics
 
-            //3050
-            //1400
+            if(scene == 0){
+                titlefunc();
+                return;
+            }        
+            if(scene == 1){
+                expfunc();
+                return;
+            }
+
+            if(scene == 2){
+                titleground.opacity -= 0.01;
+                if(titleground.opacity < 0){
+                    titleground.opacity = 0;
+                    ui.opacity -= 0.02;
+                }
+                if(ui.opacity < 0){
+                    game.rootScene.removeChild(ui);
+                    game.rootScene.removeChild(titleground);
+                    
+
+        
+                    scene = 3;
+                }
+            }
+
+            // X phisics
 
             var is_controlable = this.px < 3500 || this.py > 1400;
             var is_right_only = this.px >= 3050 && this.py <= 1400;
@@ -371,20 +554,29 @@ window.onload = function(){
                         this.x -= 2;
                         if(this.px >= 3350)shrine.x -= this.max_x_velocity;
                     }
+                    if(player_for_right == false){
+                        player_for_right = true;
+                        this.x_velocity = 0;
+                    }
                     this.x_velocity += this.acceleration;
-                    player_for_right = true;
+                    
+
                 }
                 else if(game.input.left){
+                    if(player_for_right == true){
+                        player_for_right = false;
+                        this.x_velocity = 0;
+                    }
                     this.x_velocity -= this.acceleration;
-                    player_for_right = false;
+
+                    
                 }
                 else{
-                    this.x_velocity *= 0.8;
+                    this.x_velocity *= this.x_friction;
                 }
             }
             else{
-                
-                this.x_velocity *= 0.5;
+                this.x_velocity *= this.x_friction;
             }
 
 
@@ -521,10 +713,16 @@ window.onload = function(){
 
             if(is_controlable)mastertime--;
 
-        };
+        }
 
+        ui.addEventListener("touchstart", uifunc);
+
+        player.load(game, stagetile_width/player.img_width*1.2);
+        gamephase();
+        titlephase();
         player.set_loop_func(gamefunc);
         
-    };
+    }
+
     game.start();
 };
