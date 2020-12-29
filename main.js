@@ -56,9 +56,25 @@ window.onload = function(){
 
     game.fps = 60;
 
-	//game.rootScene.backgroundColor = "#CEF";
+    //game.rootScene.backgroundColor = "#CEF";
+    
+    var bgsurface = new Surface(game.width, game.height*2);
+    var cr = bgsurface.context;
+    
+    var grad = cr.createLinearGradient(0,0,0,game.height*2);
+    grad.addColorStop(0.0, "rgb(130,210,240)");
+    grad.addColorStop(1.0, "rgb(200,100,50)");
+    cr.fillStyle = grad;
+    cr.beginPath();
+    cr.fillRect(0,0,game.width, game.height*2);
 
+    var background = new Sprite(game.width, game.height*2);
+    background.image = bgsurface;
+    game.rootScene.addChild(background);
+    
+    var time_limit = 180;
     var mastertime = 0;
+    var masterscore = 0;
     var player_for_right = true;
 
     var player = new Gobject(game, 32, 42, "resources/f_idle.png");
@@ -67,6 +83,9 @@ window.onload = function(){
     game.preload("resources/f_jump.png");
     game.preload("resources/f_walk.png");
     game.preload("resources/panel.png");
+    game.preload("resources/mountain.png");
+    game.preload("resources/shrine.png");
+    game.preload("resources/char.png");
 
     let stagetile_width_split  = 20;
     let stagetile_height_split = 20;
@@ -86,6 +105,8 @@ window.onload = function(){
 
     var stagetile = new Array(stagetile_height_split);
     var bgtile = new Array(stagetile_height_split);
+
+
 
     // SX, SY, EX, EY, COLLISION
     var hooks = [
@@ -120,6 +141,7 @@ window.onload = function(){
         player.info.jump_y_velocity = 11;
         player.info.gravity_adjust = 0.6;
 
+        mastertime = time_limit*game.fps;
 
         // ギミックの追加
 
@@ -165,7 +187,7 @@ window.onload = function(){
                 || data_seg == 65 || data_seg == 74
                 || data_seg == 4  || data_seg == 24
                 || data_seg == 44 || data_seg == 64
-                || data_seg == 84
+                //|| data_seg == 84
                 /*|| data_seg == 90 || data_seg == 95*/){
 
                     walls.push([
@@ -181,7 +203,7 @@ window.onload = function(){
                 || data_seg == 67 || data_seg == 73
                 || data_seg == 3  || data_seg == 23
                 || data_seg == 43 || data_seg == 63
-                || data_seg == 83
+                //|| data_seg == 83
                 /*|| data_seg == 92 || data_seg == 93*/){
 
                     walls.push([
@@ -195,10 +217,6 @@ window.onload = function(){
 
             }
         }
-        //console.log(stagetile_width);
-
-
-
 
         function set_tile_frame(iw, ih, tile_bpx, tile_bpy){
 
@@ -219,13 +237,13 @@ window.onload = function(){
 
                  if(ih+tile_py > 180) bgtile[ih][iw].frame = framenum_x * 2 + 8;
             else if(ih+tile_py > 177) bgtile[ih][iw].frame = framenum_x * 1 + 8;
-            else if(ih+tile_py > 100) bgtile[ih][iw].frame = framenum_x * 0 + 8;
-            else if(ih+tile_py > 75) bgtile[ih][iw].frame = framenum_x * 0 + 9;
-            else if(ih+tile_py > 50) bgtile[ih][iw].frame = framenum_x * 1 + 9;
-            else bgtile[ih][iw].frame = framenum_x * 2 + 9;
 
+            if(ih+tile_py <= 177){
+                bgtile[ih][iw].visible = false;
+            }
+            else bgtile[ih][iw].visible = true;
 
-            if(data%100 == 99){
+            if(data%100 == 99 || Math.floor(data/100) == 2){
                 stagetile[ih][iw].visible = false;
                 return;
             }
@@ -234,13 +252,62 @@ window.onload = function(){
             
 
             stagetile[ih][iw].frame = (Math.floor(data/10)%10) * framenum_x + data%10;
+
+            var pih = Math.ceil(player.info.y/stagetile_height);
+            var piw = Math.ceil(player.info.x/stagetile_width);
+
+            if((ih == pih || ih == pih+1) && (iw == piw || iw == piw+1) && stagedata[ih+tile_py][iw+tile_px]/100 < 2){
+
+                var bf_score = masterscore;
+
+                switch(stagedata[ih+tile_py][iw+tile_px]%100){
+                    case 48:
+                        masterscore += 1;
+                        break;
+                    case 49:
+                        masterscore += 5;
+                        break;
+                    case 58:
+                        masterscore += 10;
+                        break;
+                    case 59:
+                        masterscore += 50;
+                        break;
+                }
+
+                if(masterscore != bf_score)stagedata[ih+tile_py][iw+tile_px] += 100;
+            }
+
             stagetile[ih][iw].x = bgtile[ih][iw].x;
             stagetile[ih][iw].y = bgtile[ih][iw].y;
         }
 
 
 
+        var mountain = new Sprite(1000, 300);
+        mountain.image = game.assets["resources/mountain.png"];
 
+        var shrine= new Sprite(128,128);
+        shrine.image = game.assets["resources/shrine.png"];
+
+        var label = new Array(10);
+        var charsize = stagetile_width*0.5;
+        let label_value = 4;
+        for(i = 0; i< label.length; i++){
+            label[i] = new Sprite(11, 16);
+            label[i].x = 10+(i>=label_value)*20+i*charsize;
+            label[i].y = 10;
+            label[i].scaleX = charsize/label[i].width;
+            label[i].scaleY = charsize/label[i].width;
+            label[i].image = game.assets["resources/char.png"];
+        }
+
+        label[1].frame = 11;
+        label[9].frame = 10;
+
+
+
+        game.rootScene.addChild(mountain);
 
         for(ih = 0; ih<stagetile_height_split; ih++){
             stagetile[ih] = new Array(stagetile_width_split);
@@ -270,27 +337,56 @@ window.onload = function(){
                 
                 game.rootScene.addChild(bgtile[ih][iw]);
                 game.rootScene.addChild(stagetile[ih][iw]);
+                
+                
 
             }
         }
 
         game.rootScene.addChild(player.info);
+        shrine.scaleX =player.info.scaleX;
+        shrine.scaleY =player.info.scaleY;
+        shrine.x =game.width;
+        shrine.y =player.info.y - (shrine.height-player.info.height)*shrine.scaleY;
+        game.rootScene.addChild(shrine);
 
-        player.set_loop_func(function(){
+        for(i = 0; i< label.length; i++){
+            
+            game.rootScene.addChild(label[i]);
+        }
 
+        var gamefunc = function(){
+            
             // X phisics
 
-            if(game.input.right){
-                this.x_velocity += this.acceleration;
-                player_for_right = true;
-            }
-            else if(game.input.left){
-                this.x_velocity -= this.acceleration;
-                player_for_right = false;
+            //3050
+            //1400
+
+            var is_controlable = this.px < 3500 || this.py > 1400;
+            var is_right_only = this.px >= 3050 && this.py <= 1400;
+
+            if(is_controlable){
+                if(game.input.right || is_right_only){
+                    if(is_right_only){
+                        this.x -= 2;
+                        if(this.px >= 3350)shrine.x -= this.max_x_velocity;
+                    }
+                    this.x_velocity += this.acceleration;
+                    player_for_right = true;
+                }
+                else if(game.input.left){
+                    this.x_velocity -= this.acceleration;
+                    player_for_right = false;
+                }
+                else{
+                    this.x_velocity *= 0.8;
+                }
             }
             else{
-                this.x_velocity *= 0.8;
+                
+                this.x_velocity *= 0.5;
             }
+
 
             if(this.x_velocity > this.max_x_velocity) this.x_velocity = this.max_x_velocity;
             if(this.x_velocity < -this.max_x_velocity) this.x_velocity = -this.max_x_velocity;
@@ -317,7 +413,7 @@ window.onload = function(){
 
             var gravity_adjust = 1.0;
 
-            if(game.input.up){
+            if(game.input.up && is_controlable && !(is_right_only)){
                 if(this.is_hooked == true){
                     this.y_velocity -= this.jump_y_velocity;
                     this.is_hooked = false;
@@ -406,8 +502,28 @@ window.onload = function(){
                 }
             }
 
-            mastertime ++;
-        });
+            mountain.y = stagetile_height*10-(this.py-4000)*0.1;
+            background.y = -stagetile_height*15-(this.py-4000)*0.12;
+            mountain.x = -this.px*0.1;
+
+            var score = masterscore;
+            for(i=label.length-2; i>=label_value; i--){
+                label[i].frame = score%10;
+                score = Math.floor(score/10);
+            }
+
+            var mastertime_t = Math.floor(mastertime/game.fps);
+            label[0].frame = Math.floor(mastertime_t /60);
+            var second = mastertime_t -(label[0].frame*60);
+            label[2].frame = Math.floor(second/10);
+            label[3].frame = second%10;
+
+
+            if(is_controlable)mastertime--;
+
+        };
+
+        player.set_loop_func(gamefunc);
         
     };
     game.start();

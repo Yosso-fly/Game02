@@ -20,11 +20,12 @@ void format_panel(char *target, mapgen_panel_container *cont, int adress){
     // 画像番号
     for(int i=0; i<PANEL_SEGMENTS_IN_DATA; i++){
         value = cont[adress].panel[i].image;
-        for(int j=0; j<3; j++){
+        for(int j=0; j<2; j++){
             int n = value%16;
             target[point++] = hexchar(n);
             value /= 16;
         }
+        /*
 
         target[point++] = hexchar(cont[adress].panel[i].collision);
 
@@ -34,6 +35,7 @@ void format_panel(char *target, mapgen_panel_container *cont, int adress){
             target[point++] = hexchar(n);
             value /= 16;
         }
+        */
         
         if(i != PANEL_SEGMENTS_IN_DATA-1) target[point++] = ',';
     }
