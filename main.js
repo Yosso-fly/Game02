@@ -1,3 +1,4 @@
+enchant();
 
 class Gobject{
 
@@ -48,8 +49,7 @@ class Gobject{
 
 }
 
-main = function(){
-    enchant();
+window.onload = function(){
 
 
     var game = new Core(500,500);
