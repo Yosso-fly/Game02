@@ -71,7 +71,7 @@ window.onload = function(){
     cr.fillStyle = "rgb(50,50,50)";
     cr.fillRect(0,0,game.width, game.height);
 
-    var time_limit = 5;
+    var time_limit = 180;
     var mastertime = 0;
     var masterscore = 0;
     var player_for_right = true;
@@ -93,20 +93,20 @@ window.onload = function(){
     game.preload("resources/fortune.png");
     game.preload("resources/fortune_details.png");
 
-    let stagetile_width_split  = 20;
-    let stagetile_height_split = 20;
-    let stagetile_width_sum = game.width+game.width/10;
-    let stagetile_height_sum = game.height+game.height/10;
-    let stagetile_width = stagetile_width_sum/stagetile_width_split;
-    let stagetile_height = stagetile_height_sum/stagetile_height_split;
+    const stagetile_width_split  = 20;
+    const stagetile_height_split = 20;
+    const stagetile_width_sum = game.width+game.width/10;
+    const stagetile_height_sum = game.height+game.height/10;
+    const stagetile_width = stagetile_width_sum/stagetile_width_split;
+    const stagetile_height = stagetile_height_sum/stagetile_height_split;
 
-    let hook_edge = stagetile_width*0.7;
-    let hook_foot = stagetile_width*0.25;
+    const hook_edge = stagetile_width*0.7;
+    const hook_foot = stagetile_width*0.25;
 
-    let wall_edge = stagetile_width*0.7;
+    const wall_edge = stagetile_width*0.7;
 
-    let base_player_x = stagetile_width_sum/2;
-    let base_player_y = stagetile_height_sum/2;
+    const base_player_x = stagetile_width_sum/2;
+    const base_player_y = stagetile_height_sum/2;
 
     var stagetile = new Array(stagetile_height_split);
     var bgtile = new Array(stagetile_height_split);
@@ -124,16 +124,16 @@ window.onload = function(){
     var result_fortune = new Sprite(64,32);
     var result_detail_l = new Sprite(64,64);
     var result_detail_r = new Sprite(64,64);
+    var fps_setting = new Sprite(32, 32);
 
     var titleimg = new Sprite(256, 256);
     var started = false;
     var share_time = 0;
-    let share_time_max = 20;
+    const share_time_max = 20;
     var text_main = "";
-    var twitter_access = true;
 
-    var charsize = stagetile_width*0.5;
-    let label_value = 4;
+    const charsize = stagetile_width*0.5;
+    const label_value = 4;
     var exptime = 0;
 
     // SX, SY, EX, EY, COLLISION
@@ -148,7 +148,7 @@ window.onload = function(){
     
     var scene = 0;
 
-    var ui_twitter_func = function (){
+    const ui_twitter_func = function (){
         if(share_time != share_time_max) return;
         var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main);
         window.open(urltext, '');
@@ -156,11 +156,35 @@ window.onload = function(){
         //twitter_access = true;
     }
 
-    var gamediv = document.getElementById("enchant-stage");
+    const set_phisics = function(){
+        if(game.fps == 28){
+            player.info.acceleration = 1.5;
+            player.info.max_x_velocity = 10;
+            player.info.x_friction = 0.6;
+
+            player.info.gravity = 2.6;
+            player.info.max_y_velocity = 14;
+            player.info.jump_y_velocity = 24;
+            player.info.gravity_adjust = 0.6;
+            //player.info.hook = 0;
+        }
+        else if(game.fps == 60){
+            player.info.acceleration = 1;
+            player.info.max_x_velocity = 5;
+            player.info.x_friction = 0.8;
+    
+            player.info.gravity = 0.6;
+            player.info.max_y_velocity = 8;
+            player.info.jump_y_velocity = 11;
+            player.info.gravity_adjust = 0.6;
+        }
+        mastertime = time_limit*game.fps;
+
+    }
 
     game.onload = function(){
 
-        var preprocess = function() {
+        const preprocess = function() {
 
             for(i = 0; i< label.length; i++){
                 label[i] = new Sprite(11, 16);
@@ -282,10 +306,8 @@ window.onload = function(){
             result_detail_r.image = game.assets["resources/fortune_details.png"];
         }
 
-        var gamephase = function (){
+        const gamephase = function (){
 
-
-            
             background.image = bgsurface;
 
             for(i = 0; i< label.length; i++){
@@ -305,32 +327,10 @@ window.onload = function(){
             player.info.px = 400;
             player.info.py = 4800;
             player.info.is_hooked = false;
-            if(game.fps == 28){
-                player.info.acceleration = 2;
-                player.info.max_x_velocity = 12;
-                player.info.x_friction = 0.6;
-    
-                player.info.gravity = 2.6;
-                player.info.max_y_velocity = 14;
-                player.info.jump_y_velocity = 24;
-                player.info.gravity_adjust = 0.6;
 
- 
-                
-                //player.info.hook = 0;
-            }
-            else if(game.fps == 60){
-                player.info.acceleration = 1;
-                player.info.max_x_velocity = 5;
-                player.info.x_friction = 0.8;
-        
-                player.info.gravity = 0.6;
-                player.info.max_y_velocity = 8;
-                player.info.jump_y_velocity = 11;
-                player.info.gravity_adjust = 0.6;
-            }
+            set_phisics();
 
-            mastertime = time_limit*game.fps;
+            
             masterscore = 0;
             
 
@@ -353,7 +353,7 @@ window.onload = function(){
             
         }
 
-        function set_tile_frame(iw, ih, tile_bpx, tile_bpy){
+        const set_tile_frame = function(iw, ih, tile_bpx, tile_bpy){
 
 
             var tile_px = Math.floor(tile_bpx);
@@ -417,7 +417,7 @@ window.onload = function(){
             stagetile[ih][iw].y = bgtile[ih][iw].y;
         };
 
-        var titlephase = function(){
+        const titlephase = function(){
             titleground.image = titlesurface;
             game.rootScene.addChild(titleground);
             titleimg.image = game.assets["resources/titleimg.png"];
@@ -434,6 +434,26 @@ window.onload = function(){
             ui.frame = 4;
             game.rootScene.addChild(ui);
 
+            fps_setting.image = game.assets["resources/ui.png"];
+            fps_setting.scaleX = stagetile_width*1.5/fps_setting.width;
+            fps_setting.scaleY = fps_setting.scaleX;
+            fps_setting.x = stagetile_width*0.5;
+            fps_setting.y = stagetile_height*0.5;
+            fps_setting.frame = 18;
+            game.rootScene.addChild(fps_setting);
+
+            fps_setting.addEventListener("touchstart", function(){
+                if(game.fps == 28){
+                    game.fps = 60;
+                    fps_setting.frame = 19;
+                }
+                else if(game.fps == 60){
+                    game.fps = 28;
+                    fps_setting.frame = 18;
+                }
+                set_phisics();
+            });
+
             ui_twitter.image = game.assets["resources/ui.png"];
             ui_twitter.scaleX = stagetile_width*5/ui_twitter.width;
             ui_twitter.scaleY = ui_twitter.scaleX;
@@ -442,19 +462,20 @@ window.onload = function(){
             
         }
 
-        var titlefunc = function() {
+        const titlefunc = function() {
             titleimg.y += (game.height*(0.1+started*1.01) - titleimg.y)*0.2*(60/game.fps);
 
             if(titleimg.y > game.height){
                 scene = 1;
                 game.rootScene.removeChild(titleimg);
                 game.rootScene.removeChild(ui);
+                game.rootScene.removeChild(fps_setting);
                 expphase();
             }
             
         }
 
-        var expphase = function(){
+        const expphase = function(){
             map.image = game.assets["resources/stagels.png"];
             map.scaleX = stagetile_width*10/map.width;
             map.scaleY = map.scaleX;
@@ -489,10 +510,10 @@ window.onload = function(){
             
         }
 
-        var expfunc = function() {
+        const expfunc = function() {
             
             exptime++;
-            if(Math.floor(exptime/game.fps*4)%2 == 1 && exptime < 60){
+            if(Math.floor(exptime/game.fps*4)%2 == 1 && exptime < 60*(game.fps/28)){
                 icon_fly.visible = false;
                 icon_shrine.visible = false;
             }
@@ -501,8 +522,10 @@ window.onload = function(){
                 icon_shrine.visible = true;
             }
 
-            if(exptime > 180){
-                if(exptime == 181){
+            var exptimeval = Math.floor(180*(game.fps/28));
+
+            if(exptime > exptimeval){
+                if(exptime == exptimeval+1){
                     game.rootScene.removeChild(icon_fly);
                     game.rootScene.removeChild(icon_shrine);
                     game.rootScene.removeChild(startdetail);
@@ -518,7 +541,7 @@ window.onload = function(){
                 map.y += (game.height*0.2 - map.y)*0.2*(60/game.fps);
             }
 
-            if(exptime == 200){
+            if(exptime == exptimeval*1.2){
                 scene = 2;
                 game.rootScene.insertBefore(background, player.info);
                 
@@ -541,7 +564,7 @@ window.onload = function(){
             }
         }
 
-        var uifunc = function() {
+        const uifunc = function() {
             if(scene == 0){
                 started = true;
             }
@@ -569,7 +592,7 @@ window.onload = function(){
             }
         }
 
-        var resultphase = function () {
+        const resultphase = function () {
 
             var fortune = 1;
             if(masterscore >= 150)fortune = 2;
@@ -680,7 +703,7 @@ window.onload = function(){
 
         }
 
-        var resultfunc = function() {
+        const resultfunc = function() {
             
             titleground.opacity += (0.9 - titleground.opacity)*0.2;
             result_fortune.scaleX += (stagetile_width*8 / result_fortune.width- result_fortune.scaleX)*0.2;
@@ -690,7 +713,7 @@ window.onload = function(){
             if(share_time >share_time_max)share_time = share_time_max;
         }
 
-        var gamefunc = function(){
+        const gamefunc = function(){
 
             if(scene == 0){
                 titlefunc();
@@ -909,25 +932,13 @@ window.onload = function(){
 
         ui_twitter.addEventListener("touchstart", ui_twitter_func);
 
-
         player.load(game, stagetile_width/player.img_width*1.2);
         game.rootScene.addChild(player.info);
         preprocess();
         gamephase();
-        
         titlephase();
         player.set_loop_func(gamefunc);
-
-        gamediv.onclick = function(){
-            /*
-            if(twitter_access == false) return;
-            if(share_time != share_time_max) return;
-            var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main);
-            window.open(urltext, '');
-            share_time = 0;
-            twitter_access = true;
-            */
-        }        
+     
     }
 
     game.start();
