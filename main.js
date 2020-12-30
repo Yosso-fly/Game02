@@ -52,10 +52,30 @@ class Gobject{
 
 window.onload = function(){
 
-    var game = new Core(800, 450);
+    var game = new Core(500,500);
 
     game.fps = 28;
+
+    console.log("Yosso Game02");
     
+
+    var player = new Gobject(game, 32, 42, "resources/f_idle.png");
+    //game.preload("resources/f_idle.png");
+    game.preload("resources/f_fall.png");
+    game.preload("resources/f_jump.png");
+    game.preload("resources/f_walk.png");
+    game.preload("resources/panel.png");
+    game.preload("resources/mountain.png");
+    game.preload("resources/shrine.png");
+    game.preload("resources/char.png");
+    game.preload("resources/resultimg.png");
+    game.preload("resources/titleimg.png");
+    game.preload("resources/ui.png");
+    game.preload("resources/stagels.png");
+    game.preload("resources/details.png");
+    game.preload("resources/fortune.png");
+    game.preload("resources/fortune_details.png");
+
     var bgsurface = new Surface(game.width, game.height*2);
     var cr = bgsurface.context;
     
@@ -76,22 +96,6 @@ window.onload = function(){
     var masterscore = 0;
     var player_for_right = true;
 
-    var player = new Gobject(game, 32, 42, "resources/f_idle.png");
-    //game.preload("resources/f_idle.png");
-    game.preload("resources/f_fall.png");
-    game.preload("resources/f_jump.png");
-    game.preload("resources/f_walk.png");
-    game.preload("resources/panel.png");
-    game.preload("resources/mountain.png");
-    game.preload("resources/shrine.png");
-    game.preload("resources/char.png");
-    game.preload("resources/resultimg.png");
-    game.preload("resources/titleimg.png");
-    game.preload("resources/ui.png");
-    game.preload("resources/stagels.png");
-    game.preload("resources/details.png");
-    game.preload("resources/fortune.png");
-    game.preload("resources/fortune_details.png");
 
     const stagetile_width_split  = 20;
     const stagetile_height_split = 20;
@@ -182,6 +186,11 @@ window.onload = function(){
     var gamediv = document.getElementById("enchant-stage");
 
     game.onload = function(){
+
+        console.log("loaded");
+
+
+
 
         const preprocess = function() {
 
@@ -417,6 +426,7 @@ window.onload = function(){
         };
 
         const titlephase = function(){
+            console.log("Displaying Titie");
             titleground.image = titlesurface;
             game.rootScene.addChild(titleground);
             titleimg.image = game.assets["resources/titleimg.png"];
