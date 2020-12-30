@@ -150,12 +150,7 @@ window.onload = function(){
     var scene = 0;
 
     const ui_twitter_func = function (){
-        if(twitter_access == false) return;
-        if(share_time != share_time_max) return;
-        var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main);
-        window.open(urltext, '');
-        share_time = 0;
-        
+        twitter_access = true;
     }
 
     const set_phisics = function(){
@@ -943,7 +938,12 @@ window.onload = function(){
         titlephase();
         player.set_loop_func(gamefunc);
         gamediv.onclick = function(){
-            twitter_access = true;
+            if(twitter_access == false) return;
+            if(share_time != share_time_max) return;
+            var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main);
+            window.open(urltext, '');
+            share_time = 0;
+            twitter_access = false;
         }
     }
 
