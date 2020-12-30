@@ -131,6 +131,7 @@ window.onload = function(){
     var share_time = 0;
     const share_time_max = 20;
     var text_main = "";
+    var twitter_access = false;
 
     const charsize = stagetile_width*0.5;
     const label_value = 4;
@@ -149,11 +150,12 @@ window.onload = function(){
     var scene = 0;
 
     const ui_twitter_func = function (){
+        if(twitter_access == false) return;
         if(share_time != share_time_max) return;
         var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main);
         window.open(urltext, '');
         share_time = 0;
-        //twitter_access = true;
+        
     }
 
     const set_phisics = function(){
@@ -181,6 +183,8 @@ window.onload = function(){
         mastertime = time_limit*game.fps;
 
     }
+
+    var gamediv = document.getElementById("enchant-stage");
 
     game.onload = function(){
 
@@ -938,7 +942,9 @@ window.onload = function(){
         gamephase();
         titlephase();
         player.set_loop_func(gamefunc);
-     
+        gamediv.onclick = function(){
+            twitter_access = true;
+        }
     }
 
     game.start();
