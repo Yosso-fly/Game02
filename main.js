@@ -52,7 +52,7 @@ class Gobject{
 
 window.onload = function(){
 
-    var game = new Core(500, 500);
+    var game = new Core(800, 450);
 
     game.fps = 28;
     
@@ -60,7 +60,7 @@ window.onload = function(){
     var cr = bgsurface.context;
     
     var grad = cr.createLinearGradient(0,0,0,game.height*2);
-    grad.addColorStop(0.0, "rgb(130,210,240)");
+    grad.addColorStop(0.0, "rgb(150,230,255)");
     grad.addColorStop(1.0, "rgb(200,100,50)");
     cr.fillStyle = grad;
     cr.beginPath();
