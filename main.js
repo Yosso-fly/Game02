@@ -668,7 +668,8 @@ window.onload = function(){
 
             var ui_twitter_func = function (){
                 if(share_time != share_time_max) return;
-                window.open('https://twitter.com/share?text='+encodeURIComponent(text_main)+'&url='+encodeURIComponent(location.href), '_blank');
+                var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main)+"&url="+encodeURIComponent(location.href);
+                setTimeout(() => window.open(urltext,'_blank'), 1000);
                 share_time = 0;
             }
 
