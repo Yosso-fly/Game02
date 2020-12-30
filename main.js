@@ -71,7 +71,7 @@ window.onload = function(){
     cr.fillStyle = "rgb(50,50,50)";
     cr.fillRect(0,0,game.width, game.height);
 
-    var time_limit = 180;
+    var time_limit = 5;
     var mastertime = 0;
     var masterscore = 0;
     var player_for_right = true;
@@ -669,7 +669,8 @@ window.onload = function(){
             var ui_twitter_func = function (){
                 if(share_time != share_time_max) return;
                 var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main)+"&url="+encodeURIComponent(location.href);
-                setTimeout(() => window.open(urltext,'_blank'), 1000);
+                var win = open(urltext,'_blank');
+                window.close(win);
                 share_time = 0;
             }
 
