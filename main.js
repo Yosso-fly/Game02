@@ -129,6 +129,7 @@ window.onload = function(){
     var started = false;
     var share_time = 0;
     let share_time_max = 20;
+    var text_main = "";
 
     var charsize = stagetile_width*0.5;
     let label_value = 4;
@@ -145,6 +146,13 @@ window.onload = function(){
     ];
     
     var scene = 0;
+
+    var ui_twitter_func = function (){
+        if(share_time != share_time_max) return;
+        var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main)+"&url="+encodeURIComponent(location.href);
+        window.open(urltext,'_blank');
+        share_time = 0;
+    }
 
     game.onload = function(){
 
@@ -664,19 +672,8 @@ window.onload = function(){
             }
 
 
-            var text_main =     "「フライゴンの運勢買収初詣 (by @Yosso_fly)」をプレイした！"+text_result+"#よっそゲー みんなも遊ぼう";
+            text_main =     "「フライゴンの運勢買収初詣 (by @Yosso_fly)」をプレイした！"+text_result+"#よっそゲー みんなも遊ぼう";
 
-            var ui_twitter_func = function (){
-                if(share_time != share_time_max) return;
-                var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main)+"&url="+encodeURIComponent(location.href);
-                var win = open(urltext,'_blank');
-                window.close(win);
-                share_time = 0;
-            }
-
-            ui_twitter.addEventListener("touchstart", ui_twitter_func);
-
-            
         }
 
         var resultfunc = function() {
@@ -905,6 +902,8 @@ window.onload = function(){
         }
 
         ui.addEventListener("touchstart", uifunc);
+
+        ui_twitter.addEventListener("touchstart", ui_twitter_func);
         
 
         player.load(game, stagetile_width/player.img_width*1.2);
