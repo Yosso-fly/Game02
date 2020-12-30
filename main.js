@@ -150,9 +150,10 @@ window.onload = function(){
     var ui_twitter_func = function (){
         if(share_time != share_time_max) return;
         var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main)+"&url="+encodeURIComponent(location.href);
-        window.open(urltext,'_blank');
+        window.open(urltext, '', 'width=580,height=400,menubar=no,toolbar=no,scrollbars=yes');
         share_time = 0;
     }
+
 
     game.onload = function(){
 
@@ -904,7 +905,7 @@ window.onload = function(){
         ui.addEventListener("touchstart", uifunc);
 
         ui_twitter.addEventListener("touchstart", ui_twitter_func);
-        
+
 
         player.load(game, stagetile_width/player.img_width*1.2);
         game.rootScene.addChild(player.info);
@@ -913,6 +914,8 @@ window.onload = function(){
         
         titlephase();
         player.set_loop_func(gamefunc);
+
+
         
     }
 
