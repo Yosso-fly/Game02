@@ -153,6 +153,7 @@ window.onload = function(){
     }
 
     var gamediv = document.getElementById("enchant-stage");
+    let exurl = "";//location.href;
 
 
     game.onload = function(){
@@ -918,7 +919,7 @@ window.onload = function(){
         gamediv.onclick = function(){
             if(twitter_access == false) return;
             if(share_time != share_time_max) return;
-            var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main)+"&url="+encodeURIComponent(location.href);
+            var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main)+"&url="+encodeURIComponent(exurl);
             window.open(urltext, '');
             share_time = 0;
             twitter_access = true;
