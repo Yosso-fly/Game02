@@ -33,7 +33,6 @@ class Gobject{
         this.info.is_hooked = false;
         this.info.hook = 0;
         this.info.gravity_adjust = 0;
-        
         this.info.jump_y_velocity = 0;
 
         
@@ -50,13 +49,12 @@ class Gobject{
 
 }
 
+
 window.onload = function(){
 
     var game = new Core(500, 500);
 
     game.fps = 28;
-
-    //game.rootScene.backgroundColor = "#CEF";
     
     var bgsurface = new Surface(game.width, game.height*2);
     var cr = bgsurface.context;
@@ -118,20 +116,23 @@ window.onload = function(){
     var background = new Sprite(game.width, game.height*2);
     var titleground = new Sprite(game.width, game.height);
     var ui = new Sprite(64, 32);
+    var ui_twitter = new Sprite(64, 32);
     var map = new Sprite(125,173);
     var startdetail = new Sprite(192,32);
     var icon_fly = new Sprite(16,16);
     var icon_shrine = new Sprite(16,16);
+    var result_fortune = new Sprite(64,32);
+    var result_detail_l = new Sprite(64,64);
+    var result_detail_r = new Sprite(64,64);
 
     var titleimg = new Sprite(256, 256);
     var started = false;
+    var share_time = 0;
+    let share_time_max = 20;
 
     var charsize = stagetile_width*0.5;
     let label_value = 4;
     var exptime = 0;
-
-    //var gamefunc = function(){};
-    //var titlefunc = function(){};
 
     // SX, SY, EX, EY, COLLISION
     var hooks = [
@@ -142,53 +143,56 @@ window.onload = function(){
     var walls = [
         [4518, 0, 10000, 1]
     ];
-
     
     var scene = 0;
 
     game.onload = function(){
 
-        var gamephase = function (){
+        var preprocess = function() {
 
-            
-            background.image = bgsurface;
-            
-
-            //let phisics_speed = 60/game.fps;
-
-            player.info.x = base_player_x;
-            player.info.y = base_player_y;
-            player.info.px = 400;
-            player.info.py = 4800;
-
-            if(game.fps == 28){
-                player.info.acceleration = 2;
-                player.info.max_x_velocity = 12;
-                player.info.x_friction = 0.6;
-    
-                player.info.gravity = 2.6;
-                player.info.max_y_velocity = 14;
-                player.info.jump_y_velocity = 24;
-                player.info.gravity_adjust = 0.6;
-            }
-            else if(game.fps == 60){
-                player.info.acceleration = 1;
-                player.info.max_x_velocity = 5;
-                player.info.x_friction = 0.8;
-        
-                player.info.gravity = 0.6;
-                player.info.max_y_velocity = 8;
-                player.info.jump_y_velocity = 11;
-                player.info.gravity_adjust = 0.6;
+            for(i = 0; i< label.length; i++){
+                label[i] = new Sprite(11, 16);
+                label[i].image = game.assets["resources/char.png"];
             }
 
-            
+            label[1].frame = 11;
+            label[9].frame = 10;
 
 
 
-            mastertime = time_limit*game.fps;
+            for(ih = 0; ih<stagetile_height_split; ih++){
+                stagetile[ih] = new Array(stagetile_width_split);
+                bgtile[ih] = new Array(stagetile_width_split);
+                for(iw = 0; iw<stagetile_width_split; iw++){
+                    
+                    stagetile[ih][iw] = new Sprite(16, 16);
+                    stagetile[ih][iw].image = game.assets["resources/panel.png"];
+                    stagetile[ih][iw].x = iw*stagetile_width;
+                    stagetile[ih][iw].y = ih*stagetile_height;
 
-            // ギミックの追加
+
+                    stagetile[ih][iw].scaleX = stagetile_width/16;
+                    stagetile[ih][iw].scaleY = stagetile_height/16;
+
+                    // bg
+
+                    bgtile[ih][iw] = new Sprite(16, 16);
+                    bgtile[ih][iw].image = game.assets["resources/panel.png"];
+                    bgtile[ih][iw].x = iw*stagetile_width;
+                    bgtile[ih][iw].y = ih*stagetile_height;
+
+
+                    bgtile[ih][iw].scaleX = stagetile_width/16;
+                    bgtile[ih][iw].scaleY = stagetile_height/16;
+
+                    
+                    game.rootScene.addChild(bgtile[ih][iw]);
+                    game.rootScene.addChild(stagetile[ih][iw]);
+                    
+                    
+
+                }
+            }
 
             for(iw = 0; iw< stagedata[0].length; iw++){
                 for(ih = 0; ih< stagedata.length; ih++){
@@ -257,67 +261,66 @@ window.onload = function(){
                             wall_y + stagetile_height*2.5,// - wall_edge * (data_seg%10 == 3 && Math.floor(data_seg/10)%100 %2 == 0),
                             -1]);
                     }
-
-
-
                 }
             }
-
-            
             mountain.image = game.assets["resources/mountain.png"];
-
             shrine.image = game.assets["resources/shrine.png"];
+            result_fortune.image = game.assets["resources/fortune.png"];
+            result_detail_l.image = game.assets["resources/fortune_details.png"];
+            result_detail_r.image = game.assets["resources/fortune_details.png"];
+        }
+
+        var gamephase = function (){
+
 
             
+            background.image = bgsurface;
 
             for(i = 0; i< label.length; i++){
-                label[i] = new Sprite(11, 16);
                 label[i].x = 10+(i>=label_value)*20+i*charsize;
                 label[i].y = 10;
                 label[i].scaleX = charsize/label[i].width;
                 label[i].scaleY = charsize/label[i].width;
-                label[i].image = game.assets["resources/char.png"];
             }
 
-            label[1].frame = 11;
-            label[9].frame = 10;
+            //let phisics_speed = 60/game.fps;
 
+            player.info.x = base_player_x;
+            player.info.y = base_player_y;
 
+            //player.info.px = 2950;
+            //player.info.py = 1200;
+            player.info.px = 400;
+            player.info.py = 4800;
+            player.info.is_hooked = false;
+            if(game.fps == 28){
+                player.info.acceleration = 2;
+                player.info.max_x_velocity = 12;
+                player.info.x_friction = 0.6;
+    
+                player.info.gravity = 2.6;
+                player.info.max_y_velocity = 14;
+                player.info.jump_y_velocity = 24;
+                player.info.gravity_adjust = 0.6;
 
-            for(ih = 0; ih<stagetile_height_split; ih++){
-                stagetile[ih] = new Array(stagetile_width_split);
-                bgtile[ih] = new Array(stagetile_width_split);
-                for(iw = 0; iw<stagetile_width_split; iw++){
-                    
-                    stagetile[ih][iw] = new Sprite(16, 16);
-                    stagetile[ih][iw].image = game.assets["resources/panel.png"];
-                    stagetile[ih][iw].x = iw*stagetile_width;
-                    stagetile[ih][iw].y = ih*stagetile_height;
-
-
-                    stagetile[ih][iw].scaleX = stagetile_width/16;
-                    stagetile[ih][iw].scaleY = stagetile_height/16;
-
-                    // bg
-
-                    bgtile[ih][iw] = new Sprite(16, 16);
-                    bgtile[ih][iw].image = game.assets["resources/panel.png"];
-                    bgtile[ih][iw].x = iw*stagetile_width;
-                    bgtile[ih][iw].y = ih*stagetile_height;
-
-
-                    bgtile[ih][iw].scaleX = stagetile_width/16;
-                    bgtile[ih][iw].scaleY = stagetile_height/16;
-
-                    
-                    game.rootScene.addChild(bgtile[ih][iw]);
-                    game.rootScene.addChild(stagetile[ih][iw]);
-                    
-                    
-
-                }
+ 
+                
+                //player.info.hook = 0;
+            }
+            else if(game.fps == 60){
+                player.info.acceleration = 1;
+                player.info.max_x_velocity = 5;
+                player.info.x_friction = 0.8;
+        
+                player.info.gravity = 0.6;
+                player.info.max_y_velocity = 8;
+                player.info.jump_y_velocity = 11;
+                player.info.gravity_adjust = 0.6;
             }
 
+            mastertime = time_limit*game.fps;
+            masterscore = 0;
+            
 
             shrine.scaleX =player.info.scaleX;
             shrine.scaleY =player.info.scaleY;
@@ -325,7 +328,15 @@ window.onload = function(){
             shrine.y =player.info.y - (shrine.height-player.info.height)*shrine.scaleY;
             
 
-            game.rootScene.addChild(player.info);
+            for(iw = 0; iw< stagedata[0].length; iw++){
+                for(ih = 0; ih< stagedata.length; ih++){
+                    //var data_seg = stagedata[ih][iw]%100;
+                    while(stagedata[ih][iw]/100 >= 2){
+                        stagedata[ih][iw] -= 100;
+                    }
+
+                }
+            }
 
             
         }
@@ -410,6 +421,12 @@ window.onload = function(){
             ui.y = game.height*0.8;
             ui.frame = 4;
             game.rootScene.addChild(ui);
+
+            ui_twitter.image = game.assets["resources/ui.png"];
+            ui_twitter.scaleX = stagetile_width*5/ui_twitter.width;
+            ui_twitter.scaleY = ui_twitter.scaleX;
+            ui_twitter.frame = 8;
+            
             
         }
 
@@ -463,7 +480,7 @@ window.onload = function(){
         var expfunc = function() {
             
             exptime++;
-            if(Math.floor(exptime/game.fps*4)%2 == 1 && exptime < 100){
+            if(Math.floor(exptime/game.fps*4)%2 == 1 && exptime < 60){
                 icon_fly.visible = false;
                 icon_shrine.visible = false;
             }
@@ -472,8 +489,8 @@ window.onload = function(){
                 icon_shrine.visible = true;
             }
 
-            if(exptime > 100){
-                if(exptime == 101){
+            if(exptime > 180){
+                if(exptime == 181){
                     game.rootScene.removeChild(icon_fly);
                     game.rootScene.removeChild(icon_shrine);
                     game.rootScene.removeChild(startdetail);
@@ -489,7 +506,7 @@ window.onload = function(){
                 map.y += (game.height*0.2 - map.y)*0.2*(60/game.fps);
             }
 
-            if(exptime == 140){
+            if(exptime == 200){
                 scene = 2;
                 game.rootScene.insertBefore(background, player.info);
                 
@@ -504,7 +521,9 @@ window.onload = function(){
                 game.rootScene.insertBefore(shrine, player.info);
 
                 for(i = 0; i< label.length; i++){
-                    game.rootScene.insertBefore(label[i], player.info);
+                    label[i].visible = true;
+                    //game.rootScene.addChild(label[i]);
+                    game.rootScene.insertBefore(label[i], titleground);
                 }
                 
             }
@@ -514,6 +533,158 @@ window.onload = function(){
             if(scene == 0){
                 started = true;
             }
+            if(scene == 5){
+                
+                scene = 2;
+                for(i = label_value; i< label.length; i++){
+                    game.rootScene.removeChild(label[i]);
+                    game.rootScene.insertBefore(label[i], titleground);
+                    label[i].visible = true;
+                }
+
+                game.rootScene.removeChild(result_fortune);
+                game.rootScene.removeChild(result_detail_l);
+                game.rootScene.removeChild(result_detail_r);
+                game.rootScene.removeChild(startdetail);
+                game.rootScene.removeChild(ui_twitter);
+
+                gamephase();
+                titleground.opacity = 1;
+                ui.frame = 6;
+                ui.y = game.height*0.5;
+                ui.x = game.height*0.4;
+
+            }
+        }
+
+        var resultphase = function () {
+
+            var fortune = 1;
+            if(masterscore >= 150)fortune = 2;
+            if(masterscore >= 300)fortune = 3;
+            if(masterscore >= 500)fortune = 4;
+            if(masterscore >= 700)fortune = 5;
+            if(masterscore >= 800)fortune = 6;
+
+            if(mastertime < 0) fortune = 0;
+
+            game.rootScene.insertBefore(titleground, label[label_value]);
+            game.rootScene.addChild(ui);
+            game.rootScene.addChild(ui_twitter);
+
+            result_fortune.x = game.width * 0.6;
+            result_fortune.y = game.height * 0.2;
+            result_fortune.scaleX = stagetile_width*15 / result_fortune.width;
+            result_fortune.scaleY = result_fortune.scaleX;
+            result_fortune.frame = fortune; 
+            game.rootScene.addChild(result_fortune);
+
+            result_detail_l.x = game.width * 0.35;
+            result_detail_l.y = game.height * 0.45;
+            result_detail_l.scaleX = stagetile_width*5 / result_detail_l.width;
+            result_detail_l.scaleY = result_detail_l.scaleX;
+            result_detail_l.frame = 0; 
+            game.rootScene.addChild(result_detail_l);
+
+            result_detail_r.x = game.width * 0.55;
+            result_detail_r.y = game.height * 0.45;
+            result_detail_r.scaleX = stagetile_width*5 / result_detail_r.width;
+            result_detail_r.scaleY = result_detail_r.scaleX;
+            result_detail_r.frame = fortune; 
+            game.rootScene.addChild(result_detail_r);
+
+            share_time = share_time_max;
+            
+            ui.opacity = 1;
+            ui.frame = 5;
+            ui.y = game.height*0.8;
+            ui.x = game.width*0.3;
+
+            ui_twitter.y = game.height*0.8;
+            ui_twitter.x = game.width*0.6;
+
+            game.rootScene.addChild(startdetail);
+            
+            if(fortune == 0){
+                startdetail.frame = 2;
+                startdetail.y = game.height*0.5;
+            }
+            else if(fortune != 6 ){
+                startdetail.frame = 1;
+                startdetail.y = game.height*0.7;
+            }
+            else startdetail.visible = (fortune != 6);
+            result_detail_l.visible = (fortune != 0);
+            result_detail_r.visible = (fortune != 0);
+
+
+            for(i = label_value; i< label.length; i++){
+                label[i].x = game.width * (-0.125+i*0.05);
+                label[i].y = game.height * 0.25;
+                label[i].scaleX = game.width * 0.05/label[i].width;
+                label[i].scaleY = label[i].scaleX;
+
+                if(label[i].frame == 0 && (i==label_value || label[i-1].visible == false)){
+                    label[i].visible = false;
+                }
+            }
+
+            var text_score = masterscore.toString();
+            var text_fortune;
+            var text_result;
+            if(fortune == 0){
+                text_result = "「"+text_score +"円」用意したが、無念にも神社にはたどり着けなかった..."
+            }
+            else{
+                switch(fortune){
+                    case 1:
+                        text_fortune = "凶";
+                        break;
+                    case 2:
+                        text_fortune = "末吉";
+                        break;
+                    case 3:
+                        text_fortune = "小吉";
+                        break;
+                    case 4:
+                        text_fortune = "吉";
+                        break;
+                    case 5:
+                        text_fortune = "中吉";
+                        break;
+                    case 6:
+                        text_fortune = "大吉";
+                        break;
+                }
+                text_result =   "買収金額は「"+
+                                text_score+
+                                "円」で、運勢は「"+
+                                text_fortune+
+                                "」だった！";
+            }
+
+
+            var text_main =     "「フライゴンの運勢買収初詣 (by @Yosso_fly)」をプレイした！"+text_result+"#よっそゲー みんなも遊ぼう";
+
+            var ui_twitter_func = function (){
+                if(share_time != share_time_max) return;
+                window.open('https://twitter.com/share?text='+encodeURIComponent(text_main)+'&url='+encodeURIComponent(location.href), '_blank');
+                share_time = 0;
+            }
+
+            ui_twitter.addEventListener("touchstart", ui_twitter_func);
+
+            
+        }
+
+        var resultfunc = function() {
+            
+            titleground.opacity += (0.9 - titleground.opacity)*0.2;
+            result_fortune.scaleX += (stagetile_width*8 / result_fortune.width- result_fortune.scaleX)*0.2;
+            result_fortune.scaleY = result_fortune.scaleX;
+            
+            share_time++;
+            if(share_time >share_time_max)share_time = share_time_max;
         }
 
         var gamefunc = function(){
@@ -528,6 +699,7 @@ window.onload = function(){
             }
 
             if(scene == 2){
+
                 titleground.opacity -= 0.01;
                 if(titleground.opacity < 0){
                     titleground.opacity = 0;
@@ -536,92 +708,102 @@ window.onload = function(){
                 if(ui.opacity < 0){
                     game.rootScene.removeChild(ui);
                     game.rootScene.removeChild(titleground);
-                    
-
-        
                     scene = 3;
                 }
             }
 
+
+            if(scene == 4){
+                resultphase();   
+                scene = 5;
+            }
+
+            if(scene == 5){
+                resultfunc();
+                return;
+
+            }
+
             // X phisics
 
-            var is_controlable = this.px < 3500 || this.py > 1400;
-            var is_right_only = this.px >= 3050 && this.py <= 1400;
+            var is_controlable = player.info.px < 3500 || player.info.py > 1400;
+            var is_right_only = player.info.px >= 3050 && player.info.py <= 1400;
 
             if(is_controlable){
                 if(game.input.right || is_right_only){
                     if(is_right_only){
-                        this.x -= 2;
-                        if(this.px >= 3350)shrine.x -= this.max_x_velocity;
+                        player.info.x -= 2;
+                        if(player.info.px >= 3350)shrine.x -= player.info.max_x_velocity;
                     }
                     if(player_for_right == false){
                         player_for_right = true;
-                        this.x_velocity = 0;
+                        player.info.x_velocity = 0;
                     }
-                    this.x_velocity += this.acceleration;
+                    player.info.x_velocity += player.info.acceleration;
                     
 
                 }
                 else if(game.input.left){
                     if(player_for_right == true){
                         player_for_right = false;
-                        this.x_velocity = 0;
+                        player.info.x_velocity = 0;
                     }
-                    this.x_velocity -= this.acceleration;
+                    player.info.x_velocity -= player.info.acceleration;
 
                     
                 }
                 else{
-                    this.x_velocity *= this.x_friction;
+                    player.info.x_velocity *= player.info.x_friction;
                 }
             }
             else{
-                this.x_velocity *= this.x_friction;
+                //player.info.x_velocity *= 0.9;
+                scene = 4;
             }
 
 
-            if(this.x_velocity > this.max_x_velocity) this.x_velocity = this.max_x_velocity;
-            if(this.x_velocity < -this.max_x_velocity) this.x_velocity = -this.max_x_velocity;
+            if(player.info.x_velocity > player.info.max_x_velocity) player.info.x_velocity = player.info.max_x_velocity;
+            if(player.info.x_velocity < -player.info.max_x_velocity) player.info.x_velocity = -player.info.max_x_velocity;
             
 
-            var x_bef = this.px;
-            var x_af  = x_bef + this.x_velocity;
+            var x_bef = player.info.px;
+            var x_af  = x_bef + player.info.x_velocity;
 
             for(i = 0; i<walls.length; i++){
                 
-                if(walls[i][3] == 1 && this.py >= walls[i][1] && this.py <= walls[i][2] && x_bef <= walls[i][0] && x_af+stagetile_width > walls[i][0]){
+                if(walls[i][3] == 1 && player.info.py >= walls[i][1] && player.info.py <= walls[i][2] && x_bef <= walls[i][0] && x_af+stagetile_width > walls[i][0]){
                     x_af = walls[i][0] -stagetile_width;
                     break;
                 }
-                if(walls[i][3] == -1 && this.py >= walls[i][1] && this.py <= walls[i][2] && x_bef >= walls[i][0] && x_af-stagetile_width < walls[i][0]){
+                if(walls[i][3] == -1 && player.info.py >= walls[i][1] && player.info.py <= walls[i][2] && x_bef >= walls[i][0] && x_af-stagetile_width < walls[i][0]){
                     x_af = walls[i][0] + stagetile_width;
                     break;
                 }
             }
 
-            this.px  = x_af;
+            player.info.px  = x_af;
 
             // Y phisics
 
             var gravity_adjust = 1.0;
 
             if(game.input.up && is_controlable && !(is_right_only)){
-                if(this.is_hooked == true){
-                    this.y_velocity -= this.jump_y_velocity;
-                    this.is_hooked = false;
+                if(player.info.is_hooked == true){
+                    player.info.y_velocity -= player.info.jump_y_velocity;
+                    player.info.is_hooked = false;
                 }
                 else{
-                    if(this.y_velocity < -this.jump_y_velocity*0.1)
-                    gravity_adjust = this.gravity_adjust;
+                    if(player.info.y_velocity < -player.info.jump_y_velocity*0.1)
+                    gravity_adjust = player.info.gravity_adjust;
                 }
             }
 
-            this.y_velocity += this.gravity*gravity_adjust;
+            player.info.y_velocity += player.info.gravity*gravity_adjust;
 
-            if(this.y_velocity > this.max_y_velocity) this.y_velocity = this.max_y_velocity;
+            if(player.info.y_velocity > player.info.max_y_velocity) player.info.y_velocity = player.info.max_y_velocity;
 
-            var y_bef = this.py;
-            var y_af  = y_bef + this.y_velocity;
+            var y_bef = player.info.py;
+            var y_af  = y_bef + player.info.y_velocity;
 
             function hook_height(i){
                 //y = (hooks[EY]-hooks[SY])/(hooks[EX]-hooks[SX])*x + b
@@ -638,50 +820,51 @@ window.onload = function(){
 
             for(i = 0; i<hooks.length; i++){
 
-                if(!(this.is_hooked == false && this.px >= hooks[i][0] && this.px <= hooks[i][2]))continue;
+                if(!(player.info.is_hooked == false && player.info.px >= hooks[i][0] && player.info.px <= hooks[i][2]))continue;
 
                 if(hooks[i][4] == -1){
-                    if(y_bef >= hook_height(i)-stagetile_height*0.2 && y_af+this.y_velocity < hook_height(i)){
-                        this.y_velocity  = 0;
+                    if(y_bef >= hook_height(i)-stagetile_height*0.2 && y_af+player.info.y_velocity < hook_height(i)){
+                        player.info.y_velocity  = 0;
                         y_af = hook_height(i)+stagetile_height*0.2;
                     }
                 }
-                else if(y_bef <= hook_height(i)+stagetile_height*0.2 && y_af+this.y_velocity > hook_height(i)){
-                    this.is_hooked = true;
-                    this.hook = i;
+                else if(y_bef <= hook_height(i)+stagetile_height*0.2 && y_af+player.info.y_velocity > hook_height(i)){
+                    player.info.is_hooked = true;
+                    player.info.hook = i;
                     break;
                 }
             }
 
-            if(this.is_hooked == true){
-                if(this.px < hooks[this.hook][0] || this.px > hooks[this.hook][2]){
-                    this.is_hooked = false;
+            if(player.info.is_hooked == true){
+                if(player.info.px < hooks[player.info.hook][0] || player.info.px > hooks[player.info.hook][2]){
+                    player.info.is_hooked = false;
                 }
-                this.y_velocity = 0;
-                this.py = hook_height(this.hook);
+                player.info.y_velocity = 0;
+                player.info.py = hook_height(player.info.hook);
             }
 
-            else this.py  = y_af; 
+            else player.info.py  = y_af; 
+            
 
             // Animation
 
-            if(player_for_right == true) this.scaleX = Math.abs(this.scaleX);
-            else this.scaleX = -Math.abs(this.scaleX);
+            if(player_for_right == true) player.info.scaleX = Math.abs(player.info.scaleX);
+            else player.info.scaleX = -Math.abs(player.info.scaleX);
 
-            if(this.is_hooked == true){
-                if(Math.abs(this.x_velocity) > this.max_x_velocity*0.5 && Math.floor(mastertime/game.fps*10)%2 == 1){
-                        this.image = game.assets["resources/f_walk.png"];
+            if(player.info.is_hooked == true){
+                if(Math.abs(player.info.x_velocity) > player.info.max_x_velocity*0.5 && Math.floor(mastertime/game.fps*10)%2 == 1){
+                        player.info.image = game.assets["resources/f_walk.png"];
                 }
-                else this.image = game.assets["resources/f_idle.png"];
+                else player.info.image = game.assets["resources/f_idle.png"];
             }
             else{
-                if(Math.abs(this.y_velocity) < this.max_y_velocity*0.05){
-                    this.image = game.assets["resources/f_idle.png"];
+                if(Math.abs(player.info.y_velocity) < player.info.max_y_velocity*0.05){
+                    player.info.image = game.assets["resources/f_idle.png"];
                 }
-                else if(this.y_velocity < 0){
-                    this.image = game.assets["resources/f_jump.png"];
+                else if(player.info.y_velocity < 0){
+                    player.info.image = game.assets["resources/f_jump.png"];
                 }
-                else this.image = game.assets["resources/f_fall.png"];
+                else player.info.image = game.assets["resources/f_fall.png"];
             }
 
             // Update tile
@@ -689,14 +872,14 @@ window.onload = function(){
             for(ih = 0; ih<stagetile_height_split; ih++){
                 for(iw = 0; iw<stagetile_width_split; iw++){
                     set_tile_frame(iw, ih,
-                        (this.px-base_player_x-Math.abs(player.info.scaleX)*player.info.width)/stagetile_width,
-                        (this.py-base_player_y-Math.abs(player.info.scaleY)*player.info.height)/stagetile_height);
+                        (player.info.px-base_player_x-Math.abs(player.info.scaleX)*player.info.width)/stagetile_width,
+                        (player.info.py-base_player_y-Math.abs(player.info.scaleY)*player.info.height)/stagetile_height);
                 }
             }
 
-            mountain.y = stagetile_height*10-(this.py-4000)*0.1;
-            background.y = -stagetile_height*15-(this.py-4000)*0.12;
-            mountain.x = -this.px*0.1;
+            mountain.y = stagetile_height*10-(player.info.py-4000)*0.1;
+            background.y = -stagetile_height*15-(player.info.py-4000)*0.12;
+            mountain.x = -player.info.px*0.1;
 
             var score = masterscore;
             for(i=label.length-2; i>=label_value; i--){
@@ -713,12 +896,20 @@ window.onload = function(){
 
             if(is_controlable)mastertime--;
 
+            if(mastertime < 0) scene = 4;
+
+            
+
         }
 
         ui.addEventListener("touchstart", uifunc);
+        
 
         player.load(game, stagetile_width/player.img_width*1.2);
+        game.rootScene.addChild(player.info);
+        preprocess();
         gamephase();
+        
         titlephase();
         player.set_loop_func(gamefunc);
         
