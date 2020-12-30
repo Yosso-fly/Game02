@@ -49,8 +49,7 @@ class Gobject{
 
 }
 
-
-window.onload = function(){
+main = function(){
 
     var game = new Core(500,500);
 
