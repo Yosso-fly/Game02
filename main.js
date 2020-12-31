@@ -109,6 +109,13 @@ window.onload = function(){
     var masterscore = 0;
     var player_for_right = true;
 
+    const unloaded = function(){
+        const pem = document.createElement("p");
+        pem.innerHTML = "TEST Yosso";
+        gamediv.appendChild(pem);
+    }
+    unloaded();
+
 
     const stagetile_width_split  = 20;
     const stagetile_height_split = 20;
@@ -175,12 +182,7 @@ window.onload = function(){
 
     game.onload = function(){
 
-        const unloaded = function(){
-            const pem = document.createElement("p");
-            pem.innerHTML = "TEST Yosso";
-            gamediv.appendChild(pem);
-        }
-    
+
         const set_phisics = function(){
             if(game.fps == 28){
                 player.info.acceleration = 1.5;
@@ -474,7 +476,7 @@ window.onload = function(){
         };
 
         const titlephase = function(){
-            unloaded();
+            
             titleground.image = titlesurface;
             titleground.x = mx;
             game.rootScene.addChild(titleground);
