@@ -231,8 +231,8 @@ window.onload = function(){
                     stagetile[ih][iw].y = ih*stagetile_height;
 
 
-                    stagetile[ih][iw].scaleX = stagetile_width/16;
-                    stagetile[ih][iw].scaleY = stagetile_height/16;
+                    stagetile[ih][iw].scaleX = stagetile_width/15;
+                    stagetile[ih][iw].scaleY = stagetile_height/15;
 
                     // bg
 
@@ -242,8 +242,8 @@ window.onload = function(){
                     bgtile[ih][iw].y = ih*stagetile_height;
 
 
-                    bgtile[ih][iw].scaleX = stagetile_width/16;
-                    bgtile[ih][iw].scaleY = stagetile_height/16;
+                    bgtile[ih][iw].scaleX = stagetile_width/15;
+                    bgtile[ih][iw].scaleY = stagetile_height/15;
 
                     
                     game.rootScene.addChild(bgtile[ih][iw]);
@@ -1038,9 +1038,14 @@ window.onload = function(){
             if(twitter_access == false) return;
             if(share_time != share_time_max) return;
             var urltext ="https://twitter.com/share?text="+encodeURIComponent(text_main);
-            window.open(urltext, '');
+            //window.open(urltext, '');
             share_time = 0;
             twitter_access = false;
+            if(!window.open(urltext)) {
+                location.href = urltext;
+            } else {
+                window.open(urltext);
+            }
         }
     }
 
