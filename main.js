@@ -52,12 +52,26 @@ class Gobject{
 window.onload = function(){
 
 
-    var game = new Core(500,500);
+    var game = new Core(800,500);
 
     game.fps = 28;
 
-    console.log("Yosso Game02");
-    
+    var gamediv = document.getElementById("enchant-stage");
+
+    var masterwidth = 500;
+    var masterheight= 500;
+    var mx = (game.width - masterwidth )/2;
+    var my = (game.height - masterheight )/2;
+
+    var sc_left = ( window.innerWidth - ( game.width * game.scale )) /2;
+    gamediv.style.left = sc_left.toString()+"px";
+    game._pageX = sc_left;
+
+/*
+    if(game.ready == false){
+        return;
+    }
+*/  
 
     var player = new Gobject(game, 32, 42, "resources/f_idle.png");
     //game.preload("resources/f_idle.png");
@@ -76,20 +90,25 @@ window.onload = function(){
     game.preload("resources/fortune.png");
     game.preload("resources/fortune_details.png");
 
-    var bgsurface = new Surface(game.width, game.height*2);
+    var bgsurface = new Surface(masterwidth, masterheight*2);
     var cr = bgsurface.context;
     
-    var grad = cr.createLinearGradient(0,0,0,game.height*2);
+    var grad = cr.createLinearGradient(0,0,0,masterheight*2);
     grad.addColorStop(0.0, "rgb(150,230,255)");
     grad.addColorStop(1.0, "rgb(200,100,50)");
     cr.fillStyle = grad;
     cr.beginPath();
-    cr.fillRect(0,0,game.width, game.height*2);
+    cr.fillRect(0,0,masterwidth, masterheight*2);
 
-    var titlesurface = new Surface(game.width, game.height);
-    var cr = titlesurface.context;
-    cr.fillStyle = "rgb(50,50,50)";
-    cr.fillRect(0,0,game.width, game.height);
+    var titlesurface = new Surface(masterwidth, masterheight);
+    var tcr = titlesurface.context;
+    tcr.fillStyle = "rgb(50,50,50)";
+    tcr.fillRect(0,0,masterwidth, masterheight);
+
+    var hidesurface = new Surface(mx, game.height);
+    var hcr = hidesurface.context;
+    hcr.fillStyle = "rgb(20,20,20)";
+    hcr.fillRect(0,0, mx, game.height);
 
     var time_limit = 180;
     var mastertime = 0;
@@ -99,8 +118,8 @@ window.onload = function(){
 
     const stagetile_width_split  = 20;
     const stagetile_height_split = 20;
-    const stagetile_width_sum = game.width+game.width/10;
-    const stagetile_height_sum = game.height+game.height/10;
+    const stagetile_width_sum = masterwidth+masterwidth/10;
+    const stagetile_height_sum = masterheight+masterheight/10;
     const stagetile_width = stagetile_width_sum/stagetile_width_split;
     const stagetile_height = stagetile_height_sum/stagetile_height_split;
 
@@ -117,8 +136,8 @@ window.onload = function(){
     var mountain = new Sprite(1000, 300);
     var shrine= new Sprite(128,128);
     var label = new Array(10);
-    var background = new Sprite(game.width, game.height*2);
-    var titleground = new Sprite(game.width, game.height);
+    var background = new Sprite(masterwidth, masterheight*2);
+    var titleground = new Sprite(masterwidth, masterheight);
     var ui = new Sprite(64, 32);
     var ui_twitter = new Sprite(64, 32);
     var map = new Sprite(125,173);
@@ -129,6 +148,11 @@ window.onload = function(){
     var result_detail_l = new Sprite(64,64);
     var result_detail_r = new Sprite(64,64);
     var fps_setting = new Sprite(32, 32);
+    var hide_l = new Sprite(mx, game.height);
+    var hide_r = new Sprite(mx, game.height);
+    var button_l = new Sprite(32, 32);
+    var button_r = new Sprite(32, 32);
+    var button_j = new Sprite(32, 32);
 
     var titleimg = new Sprite(256, 256);
     var started = false;
@@ -153,44 +177,36 @@ window.onload = function(){
     
     var scene = 0;
 
-    const ui_twitter_func = function (){
-        twitter_access = true;
-    }
 
-    const set_phisics = function(){
-        if(game.fps == 28){
-            player.info.acceleration = 1.5;
-            player.info.max_x_velocity = 10;
-            player.info.x_friction = 0.6;
-
-            player.info.gravity = 2.6;
-            player.info.max_y_velocity = 14;
-            player.info.jump_y_velocity = 24;
-            player.info.gravity_adjust = 0.6;
-            //player.info.hook = 0;
-        }
-        else if(game.fps == 60){
-            player.info.acceleration = 1;
-            player.info.max_x_velocity = 5;
-            player.info.x_friction = 0.8;
-    
-            player.info.gravity = 0.6;
-            player.info.max_y_velocity = 8;
-            player.info.jump_y_velocity = 11;
-            player.info.gravity_adjust = 0.6;
-        }
-        mastertime = time_limit*game.fps;
-
-    }
-
-    var gamediv = document.getElementById("enchant-stage");
 
     game.onload = function(){
 
-        console.log("loaded");
-
-
-
+    
+        const set_phisics = function(){
+            if(game.fps == 28){
+                player.info.acceleration = 1.5;
+                player.info.max_x_velocity = 10;
+                player.info.x_friction = 0.6;
+    
+                player.info.gravity = 2.6;
+                player.info.max_y_velocity = 14;
+                player.info.jump_y_velocity = 24;
+                player.info.gravity_adjust = 0.6;
+                //player.info.hook = 0;
+            }
+            else if(game.fps == 60){
+                player.info.acceleration = 1;
+                player.info.max_x_velocity = 5;
+                player.info.x_friction = 0.8;
+        
+                player.info.gravity = 0.6;
+                player.info.max_y_velocity = 8;
+                player.info.jump_y_velocity = 11;
+                player.info.gravity_adjust = 0.6;
+            }
+            mastertime = time_limit*game.fps;
+    
+        }
 
         const preprocess = function() {
 
@@ -211,7 +227,7 @@ window.onload = function(){
                     
                     stagetile[ih][iw] = new Sprite(16, 16);
                     stagetile[ih][iw].image = game.assets["resources/panel.png"];
-                    stagetile[ih][iw].x = iw*stagetile_width;
+                    stagetile[ih][iw].x= mx + iw*stagetile_width;
                     stagetile[ih][iw].y = ih*stagetile_height;
 
 
@@ -222,7 +238,7 @@ window.onload = function(){
 
                     bgtile[ih][iw] = new Sprite(16, 16);
                     bgtile[ih][iw].image = game.assets["resources/panel.png"];
-                    bgtile[ih][iw].x = iw*stagetile_width;
+                    bgtile[ih][iw].x= mx + iw*stagetile_width;
                     bgtile[ih][iw].y = ih*stagetile_height;
 
 
@@ -312,14 +328,47 @@ window.onload = function(){
             result_fortune.image = game.assets["resources/fortune.png"];
             result_detail_l.image = game.assets["resources/fortune_details.png"];
             result_detail_r.image = game.assets["resources/fortune_details.png"];
+            button_l.image = game.assets["resources/ui.png"];
+            button_r.image = game.assets["resources/ui.png"];
+            button_j.image = game.assets["resources/ui.png"];
+
+            hide_l.image = hidesurface;
+            hide_r.image = hidesurface;
+            hide_l.x = 0;
+            hide_r.x = mx+masterwidth;
+            game.rootScene.addChild(hide_l);
+            game.rootScene.addChild(hide_r);
+            
+            button_j.scaleX = masterwidth*0.2/32;
+            button_j.scaleY = button_j.scaleX;
+            button_j.x = mx+masterwidth*1.13;
+            button_j.y = masterheight*0.75;
+            button_j.frame = 4;
+            game.rootScene.addChild(button_j);
+
+            button_l.scaleX = masterwidth*0.2/32;
+            button_l.scaleY = button_l.scaleX;
+            button_l.x = mx-masterwidth*0.2;
+            button_l.y = masterheight*0.6;
+            button_l.frame = 0;
+            game.rootScene.addChild(button_l);
+
+            button_r.scaleX = masterwidth*0.2/32;
+            button_r.scaleY = button_r.scaleX;
+            button_r.x = mx-masterwidth*0.2;
+            button_r.y = masterheight*0.85;
+            button_r.frame = 2;
+            game.rootScene.addChild(button_r);
+
         }
 
         const gamephase = function (){
 
             background.image = bgsurface;
+            background.x = mx;
 
             for(i = 0; i< label.length; i++){
-                label[i].x = 10+(i>=label_value)*20+i*charsize;
+                label[i].x= mx + 10+(i>=label_value)*20+i*charsize;
                 label[i].y = 10;
                 label[i].scaleX = charsize/label[i].width;
                 label[i].scaleY = charsize/label[i].width;
@@ -327,7 +376,7 @@ window.onload = function(){
 
             //let phisics_speed = 60/game.fps;
 
-            player.info.x = base_player_x;
+            player.info.x= mx + base_player_x;
             player.info.y = base_player_y;
 
             //player.info.px = 2950;
@@ -344,7 +393,7 @@ window.onload = function(){
 
             shrine.scaleX =player.info.scaleX;
             shrine.scaleY =player.info.scaleY;
-            shrine.x =game.width;
+            shrine.x= mx +masterwidth;
             shrine.y =player.info.y - (shrine.height-player.info.height)*shrine.scaleY;
             
 
@@ -374,11 +423,11 @@ window.onload = function(){
             var data = Math.floor(stagedata[ih+tile_py][iw+tile_px]);
             var framenum_x = stagetile[ih][iw].image.width / stagetile[ih][iw].width;
 
-            bgtile[ih][iw].x = iw*stagetile_width  - (tile_bpx-tile_px) * stagetile_width ;
+            bgtile[ih][iw].x= mx + iw*stagetile_width  - (tile_bpx-tile_px) * stagetile_width ;
             bgtile[ih][iw].y = ih*stagetile_height - (tile_bpy-tile_py) * stagetile_height;
 
 
-                if(ih+tile_py > 180) bgtile[ih][iw].frame = framenum_x * 2 + 8;
+                 if(ih+tile_py > 180) bgtile[ih][iw].frame = framenum_x * 2 + 8;
             else if(ih+tile_py > 177) bgtile[ih][iw].frame = framenum_x * 1 + 8;
 
             if(ih+tile_py <= 177){
@@ -396,8 +445,8 @@ window.onload = function(){
 
             stagetile[ih][iw].frame = (Math.floor(data/10)%10) * framenum_x + data%10;
 
-            var pih = Math.ceil(player.info.y/stagetile_height);
-            var piw = Math.ceil(player.info.x/stagetile_width);
+            var pih = Math.ceil((player.info.y-my)/stagetile_height);
+            var piw = Math.ceil((player.info.x-mx)/stagetile_width);
 
             if((ih == pih || ih == pih+1) && (iw == piw || iw == piw+1) && stagedata[ih+tile_py][iw+tile_px]/100 < 2){
 
@@ -421,32 +470,34 @@ window.onload = function(){
                 if(masterscore != bf_score)stagedata[ih+tile_py][iw+tile_px] += 100;
             }
 
-            stagetile[ih][iw].x = bgtile[ih][iw].x;
+            stagetile[ih][iw].x= bgtile[ih][iw].x;
             stagetile[ih][iw].y = bgtile[ih][iw].y;
         };
 
         const titlephase = function(){
-            console.log("Displaying Titie");
             titleground.image = titlesurface;
+            titleground.x = mx;
             game.rootScene.addChild(titleground);
+
+
             titleimg.image = game.assets["resources/titleimg.png"];
-            titleimg.scaleX = game.width/titleimg.width*0.75;
+            titleimg.scaleX = masterwidth/titleimg.width*0.75;
             titleimg.scaleY = titleimg.scaleX;
-            titleimg.x = game.width*0.26;
-            titleimg.y = -game.height*0.2;
+            titleimg.x= mx + masterwidth*0.26;
+            titleimg.y = -masterheight*0.2;
             game.rootScene.addChild(titleimg);
             ui.image = game.assets["resources/ui.png"];
             ui.scaleX = stagetile_width*5/ui.width;
             ui.scaleY = ui.scaleX;
-            ui.x = (stagetile_width_split-5)/2*stagetile_width;
-            ui.y = game.height*0.8;
+            ui.x= mx + (stagetile_width_split-5)/2*stagetile_width;
+            ui.y = masterheight*0.8;
             ui.frame = 4;
             game.rootScene.addChild(ui);
 
             fps_setting.image = game.assets["resources/ui.png"];
             fps_setting.scaleX = stagetile_width*1.5/fps_setting.width;
             fps_setting.scaleY = fps_setting.scaleX;
-            fps_setting.x = stagetile_width*0.5;
+            fps_setting.x= mx + stagetile_width*0.5;
             fps_setting.y = stagetile_height*0.5;
             fps_setting.frame = 18;
             game.rootScene.addChild(fps_setting);
@@ -472,9 +523,9 @@ window.onload = function(){
         }
 
         const titlefunc = function() {
-            titleimg.y += (game.height*(0.1+started*1.01) - titleimg.y)*0.2*(60/game.fps);
+            titleimg.y += (masterheight*(0.1+started*1.01) - titleimg.y)*0.2*(60/game.fps);
 
-            if(titleimg.y > game.height){
+            if(titleimg.y > masterheight){
                 scene = 1;
                 game.rootScene.removeChild(titleimg);
                 game.rootScene.removeChild(ui);
@@ -488,15 +539,15 @@ window.onload = function(){
             map.image = game.assets["resources/stagels.png"];
             map.scaleX = stagetile_width*10/map.width;
             map.scaleY = map.scaleX;
-            map.x = game.width * 0.36;
-            map.y = -game.height * 0.3;
+            map.x= mx + masterwidth * 0.36;
+            map.y = -masterheight * 0.3;
             game.rootScene.addChild(map);
 
             startdetail.image = game.assets["resources/details.png"];
             startdetail.scaleX = stagetile_width*12/startdetail.width;
             startdetail.scaleY = startdetail.scaleX;
-            startdetail.x = game.width * 0.3;
-            startdetail.y = game.height * 0.82;
+            startdetail.x= mx + masterwidth * 0.3;
+            startdetail.y = masterheight * 0.82;
             game.rootScene.addChild(startdetail);
 
             var framenum_x = stagetile[0][0].image.width / stagetile[0][0].width;
@@ -505,16 +556,16 @@ window.onload = function(){
             icon_fly.scaleX = stagetile_width*1.2/icon_fly.width;
             icon_fly.scaleY = icon_fly.scaleX;
             icon_fly.frame = framenum_x *6 + 9;
-            icon_fly.x = game.width * 0.22;
-            icon_fly.y = game.height* 0.65;
+            icon_fly.x= mx + masterwidth * 0.22;
+            icon_fly.y = masterheight* 0.65;
             game.rootScene.addChild(icon_fly);
             
             icon_shrine.image = game.assets["resources/panel.png"];
             icon_shrine.scaleX = stagetile_width*1.2/icon_shrine.width;
             icon_shrine.scaleY = icon_shrine.scaleX;
             icon_shrine.frame = framenum_x *6 + 8;
-            icon_shrine.x = game.width * 0.72;
-            icon_shrine.y = game.height* 0.10;
+            icon_shrine.x= mx + masterwidth * 0.72;
+            icon_shrine.y = masterheight* 0.10;
             game.rootScene.addChild(icon_shrine);
             
         }
@@ -541,13 +592,13 @@ window.onload = function(){
 
                     game.rootScene.addChild(ui);
                     ui.frame = 6;
-                    ui.y = game.height*0.5;
+                    ui.y = masterheight*0.5;
                 }
 
-                map.y += (game.height*1.3 - map.y)*0.2*(60/game.fps);
+                map.y += (masterheight*1.3 - map.y)*0.2*(60/game.fps);
             }
             else{
-                map.y += (game.height*0.2 - map.y)*0.2*(60/game.fps);
+                map.y += (masterheight*0.2 - map.y)*0.2*(60/game.fps);
             }
 
             if(exptime == exptimeval*1.2){
@@ -595,8 +646,8 @@ window.onload = function(){
                 gamephase();
                 titleground.opacity = 1;
                 ui.frame = 6;
-                ui.y = game.height*0.5;
-                ui.x = game.height*0.4;
+                ui.y = masterheight*0.5;
+                ui.x= mx + masterheight*0.4;
 
             }
         }
@@ -616,22 +667,22 @@ window.onload = function(){
             game.rootScene.addChild(ui);
             game.rootScene.addChild(ui_twitter);
 
-            result_fortune.x = game.width * 0.6;
-            result_fortune.y = game.height * 0.2;
+            result_fortune.x= mx + masterwidth * 0.6;
+            result_fortune.y = masterheight * 0.2;
             result_fortune.scaleX = stagetile_width*15 / result_fortune.width;
             result_fortune.scaleY = result_fortune.scaleX;
             result_fortune.frame = fortune; 
             game.rootScene.addChild(result_fortune);
 
-            result_detail_l.x = game.width * 0.35;
-            result_detail_l.y = game.height * 0.45;
+            result_detail_l.x= mx + masterwidth * 0.35;
+            result_detail_l.y = masterheight * 0.45;
             result_detail_l.scaleX = stagetile_width*5 / result_detail_l.width;
             result_detail_l.scaleY = result_detail_l.scaleX;
             result_detail_l.frame = 0; 
             game.rootScene.addChild(result_detail_l);
 
-            result_detail_r.x = game.width * 0.55;
-            result_detail_r.y = game.height * 0.45;
+            result_detail_r.x= mx + masterwidth * 0.55;
+            result_detail_r.y = masterheight * 0.45;
             result_detail_r.scaleX = stagetile_width*5 / result_detail_r.width;
             result_detail_r.scaleY = result_detail_r.scaleX;
             result_detail_r.frame = fortune; 
@@ -641,21 +692,21 @@ window.onload = function(){
             
             ui.opacity = 1;
             ui.frame = 5;
-            ui.y = game.height*0.8;
-            ui.x = game.width*0.3;
+            ui.y = masterheight*0.8;
+            ui.x= mx + masterwidth*0.3;
 
-            ui_twitter.y = game.height*0.8;
-            ui_twitter.x = game.width*0.6;
+            ui_twitter.y = masterheight*0.8;
+            ui_twitter.x= mx + masterwidth*0.6;
 
             game.rootScene.addChild(startdetail);
             
             if(fortune == 0){
                 startdetail.frame = 2;
-                startdetail.y = game.height*0.5;
+                startdetail.y = masterheight*0.5;
             }
             else if(fortune != 6 ){
                 startdetail.frame = 1;
-                startdetail.y = game.height*0.7;
+                startdetail.y = masterheight*0.7;
             }
             else startdetail.visible = (fortune != 6);
             result_detail_l.visible = (fortune != 0);
@@ -663,9 +714,9 @@ window.onload = function(){
 
 
             for(i = label_value; i< label.length; i++){
-                label[i].x = game.width * (-0.125+i*0.05);
-                label[i].y = game.height * 0.25;
-                label[i].scaleX = game.width * 0.05/label[i].width;
+                label[i].x= mx + masterwidth * (-0.125+i*0.05);
+                label[i].y = masterheight * 0.25;
+                label[i].scaleX = masterwidth * 0.05/label[i].width;
                 label[i].scaleY = label[i].scaleX;
 
                 if(label[i].frame == 0 && (i==label_value || label[i-1].visible == false)){
@@ -724,6 +775,8 @@ window.onload = function(){
 
         const gamefunc = function(){
 
+            
+
             if(scene == 0){
                 titlefunc();
                 return;
@@ -765,7 +818,7 @@ window.onload = function(){
             var is_right_only = player.info.px >= 3050 && player.info.py <= 1400;
 
             if(is_controlable){
-                if(game.input.right || is_right_only){
+                if(game.input.right || button_r.frame == 3 || is_right_only){
                     if(is_right_only){
                         player.info.x -= 2;
                         if(player.info.px >= 3350)shrine.x -= player.info.max_x_velocity;
@@ -775,17 +828,15 @@ window.onload = function(){
                         player.info.x_velocity = 0;
                     }
                     player.info.x_velocity += player.info.acceleration;
-                    
 
                 }
-                else if(game.input.left){
+                else if(game.input.left || button_l.frame == 1){
                     if(player_for_right == true){
                         player_for_right = false;
                         player.info.x_velocity = 0;
                     }
                     player.info.x_velocity -= player.info.acceleration;
 
-                    
                 }
                 else{
                     player.info.x_velocity *= player.info.x_friction;
@@ -822,7 +873,7 @@ window.onload = function(){
 
             var gravity_adjust = 1.0;
 
-            if(game.input.up && is_controlable && !(is_right_only)){
+            if((game.input.up || button_j.frame == 5) && is_controlable && !(is_right_only)){
                 if(player.info.is_hooked == true){
                     player.info.y_velocity -= player.info.jump_y_velocity;
                     player.info.is_hooked = false;
@@ -914,7 +965,7 @@ window.onload = function(){
 
             mountain.y = stagetile_height*10-(player.info.py-4000)*0.1;
             background.y = -stagetile_height*15-(player.info.py-4000)*0.12;
-            mountain.x = -player.info.px*0.1;
+            mountain.x= mx + -player.info.px*0.1;
 
             var score = masterscore;
             for(i=label.length-2; i>=label_value; i--){
@@ -933,13 +984,48 @@ window.onload = function(){
 
             if(mastertime < 0) scene = 4;
 
+
             
+
 
         }
 
-        ui.addEventListener("touchstart", uifunc);
+        const ui_twitter_func = function (){
+            twitter_access = true;
+        }
 
+        var button_l_func = function(){
+            button_l.frame = 1;
+        }
+
+        var button_l_end = function(){
+            button_l.frame = 0;
+        }
+
+        var button_r_func = function(){
+            button_r.frame = 3;
+        }
+
+        var button_r_end = function(){
+            button_r.frame = 2;
+        }
+
+        var button_j_func = function(){
+            button_j.frame = 5;
+        }
+
+        var button_j_end = function(){
+            button_j.frame = 4;
+        }
+
+        ui.addEventListener("touchstart", uifunc);
         ui_twitter.addEventListener("touchstart", ui_twitter_func);
+        button_l.addEventListener("touchstart", button_l_func);
+        button_l.addEventListener("touchend", button_l_end);
+        button_r.addEventListener("touchstart", button_r_func);
+        button_r.addEventListener("touchend", button_r_end);
+        button_j.addEventListener("touchstart", button_j_func);
+        button_j.addEventListener("touchend", button_j_end);
 
         player.load(game, stagetile_width/player.img_width*1.2);
         game.rootScene.addChild(player.info);
@@ -947,6 +1033,7 @@ window.onload = function(){
         gamephase();
         titlephase();
         player.set_loop_func(gamefunc);
+
         gamediv.onclick = function(){
             if(twitter_access == false) return;
             if(share_time != share_time_max) return;
