@@ -67,12 +67,6 @@ window.onload = function(){
     gamediv.style.left = sc_left.toString()+"px";
     game._pageX = sc_left;
 
-/*
-    if(game.ready == false){
-        return;
-    }
-*/  
-
     var player = new Gobject(game, 32, 42, "resources/f_idle.png");
     //game.preload("resources/f_idle.png");
     game.preload("resources/f_fall.png");
@@ -181,6 +175,11 @@ window.onload = function(){
 
     game.onload = function(){
 
+        const unloaded = function(){
+            const pem = document.createElement("p");
+            pem.innerHTML = "TEST Yosso";
+            gamediv.appendChild(pem);
+        }
     
         const set_phisics = function(){
             if(game.fps == 28){
@@ -475,6 +474,7 @@ window.onload = function(){
         };
 
         const titlephase = function(){
+            unloaded();
             titleground.image = titlesurface;
             titleground.x = mx;
             game.rootScene.addChild(titleground);
