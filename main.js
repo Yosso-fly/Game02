@@ -51,7 +51,6 @@ class Gobject{
 
 window.onload = function(){
 
-
     var game = new Core(800,500);
 
     game.fps = 28;
@@ -67,6 +66,8 @@ window.onload = function(){
     var sc_left = ( window.innerWidth - ( game.width * game.scale )) /2;
     gamediv.style.left = sc_left.toString()+"px";
     game._pageX = sc_left;
+    logdiv.style.left = sc_left.toString()+"px";
+    logdiv.style.fontSize = sc_left.toString()*0.1+"px";
 
     var player = new Gobject(game, 32, 42, "resources/f_idle.png");
     //game.preload("resources/f_idle.png");
@@ -772,10 +773,6 @@ window.onload = function(){
         }
 
         const gamefunc = function(){
-
-            logdiv.innerHTML=game.frame;
-
-            
 
             if(scene == 0){
                 titlefunc();
