@@ -66,15 +66,7 @@ window.onload = function(){
     var sc_left = ( window.innerWidth - ( game.width * game.scale )) /2;
     gamediv.style.left = sc_left.toString()+"px";
     game._pageX = sc_left;
-    {
-        var logdiv = document.getElementById("logdiv");
-        var yosso = document.getElementById("yosso");
 
-        logdiv.style.left = "0px";
-        logdiv.style.fontSize = "0px";
-        yosso.style.width = "0px";
-        yosso.style.height = "0px";
-    }
     var player = new Gobject(game, 32, 42, "resources/f_idle.png");
     //game.preload("resources/f_idle.png");
     game.preload("resources/f_fall.png");
