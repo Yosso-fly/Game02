@@ -56,7 +56,7 @@ window.onload = function(){
     game.fps = 28;
 
     var gamediv = document.getElementById("enchant-stage");
-    var logdiv = document.getElementById("logdiv");
+
 
     var masterwidth = 500;
     var masterheight= 500;
@@ -66,9 +66,15 @@ window.onload = function(){
     var sc_left = ( window.innerWidth - ( game.width * game.scale )) /2;
     gamediv.style.left = sc_left.toString()+"px";
     game._pageX = sc_left;
-    logdiv.style.left = sc_left.toString()+"px";
-    logdiv.style.fontSize = sc_left.toString()*0.1+"px";
+    {
+        var logdiv = document.getElementById("logdiv");
+        var yosso = document.getElementById("yosso");
 
+        logdiv.style.left = sc_left.toString()+"px";
+        logdiv.style.fontSize = sc_left.toString()*0.1+"px";
+        yosso.style.width =  sc_left.toString()*0.2+"px";
+        yosso.style.height =  sc_left.toString()*0.15+"px";
+    }
     var player = new Gobject(game, 32, 42, "resources/f_idle.png");
     //game.preload("resources/f_idle.png");
     game.preload("resources/f_fall.png");
