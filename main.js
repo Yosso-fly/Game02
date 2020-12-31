@@ -701,11 +701,11 @@ window.onload = function(){
                 startdetail.frame = 2;
                 startdetail.y = masterheight*0.5;
             }
-            else if(fortune != 6 ){
+            else if(fortune != 6){
                 startdetail.frame = 1;
                 startdetail.y = masterheight*0.7;
             }
-            else startdetail.visible = (fortune != 6);
+            else startdetail.visible = false;
             result_detail_l.visible = (fortune != 0);
             result_detail_r.visible = (fortune != 0);
 
@@ -1037,9 +1037,8 @@ window.onload = function(){
             share_time = 0;
             twitter_access = false;
             if(!window.open(urltext)) {
-                location.href = urltext;
-            } else {
-                window.open(urltext);
+                startdetail.frame = 3;
+                startdetail.visible = true;
             }
         }
     }
