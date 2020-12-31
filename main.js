@@ -57,10 +57,7 @@ window.onload = function(){
     game.fps = 28;
 
     var gamediv = document.getElementById("enchant-stage");
-    
-    const pem = document.createElement("p");
-    pem.innerHTML = "TEST Yosso";
-    gamediv.appendChild(pem);
+    var logdiv = document.getElementById("logdiv");
 
     var masterwidth = 500;
     var masterheight= 500;
@@ -775,6 +772,8 @@ window.onload = function(){
         }
 
         const gamefunc = function(){
+
+            logdiv.innerHTML=game.frame;
 
             
 
