@@ -231,8 +231,8 @@ window.onload = function(){
                     stagetile[ih][iw].y = ih*stagetile_height;
 
 
-                    stagetile[ih][iw].scaleX = stagetile_width/15;
-                    stagetile[ih][iw].scaleY = stagetile_height/15;
+                    stagetile[ih][iw].scaleX = stagetile_width/10;
+                    stagetile[ih][iw].scaleY = stagetile_height/10;
 
                     // bg
 
@@ -242,8 +242,8 @@ window.onload = function(){
                     bgtile[ih][iw].y = ih*stagetile_height;
 
 
-                    bgtile[ih][iw].scaleX = stagetile_width/15;
-                    bgtile[ih][iw].scaleY = stagetile_height/15;
+                    bgtile[ih][iw].scaleX = stagetile_width/10;
+                    bgtile[ih][iw].scaleY = stagetile_height/10;
 
                     
                     game.rootScene.addChild(bgtile[ih][iw]);
